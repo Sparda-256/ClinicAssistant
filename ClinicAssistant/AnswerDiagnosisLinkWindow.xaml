@@ -1,0 +1,15 @@
+﻿<Window x:Class="ClinicAssistant.AnswerDiagnosisLinkWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Добавить связь ответа к диагнозу" Height="250" Width="400">
+    <Grid>
+        <StackPanel Margin="10">
+            <Label Content="Выберите ответ:" />
+            <ComboBox Name="AnswerComboBox" Width="300" />
+            <Label Content="Выберите диагноз:" Margin="0,10,0,0" />
+            <ComboBox Name="DiagnosisComboBox" Width="300" />
+            <Button Content="Сохранить" Width="100" Margin="0,20,0,0"
+                    HorizontalAlignment="Left" Click="SaveAnswerDiagnosisLink_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

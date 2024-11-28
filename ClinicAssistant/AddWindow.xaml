@@ -1,0 +1,75 @@
+﻿<Window x:Class="ClinicAssistant.AddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Добавить" Height="500" Width="700">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Симптом">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <Label Content="Название симптома:" />
+                        <TextBox Name="SymptomNameTextBox" Width="300" />
+                        <Button Content="Добавить" Width="100" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="AddSymptom_Click" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Наводящий вопрос">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <Label Content="Симптом:" />
+                        <ComboBox Name="SymptomComboBox" Width="300" />
+                        <Label Content="Текст наводящего вопроса:" Margin="0,10,0,0" />
+                        <TextBox Name="QuestionTextTextBox" Width="300" />
+                        <Button Content="Добавить" Width="100" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="AddFollowUpQuestion_Click" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Ответ">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <Label Content="Вопрос:" />
+                        <ComboBox Name="QuestionComboBox" Width="300" />
+                        <Label Content="Текст ответа:" Margin="0,10,0,0" />
+                        <TextBox Name="AnswerTextTextBox" Width="300" />
+                        <Button Content="Добавить" Width="100" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="AddAnswer_Click" />
+                        <Button Content="Добавить связь ответа к диагнозу" Width="250" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="OpenAnswerDiagnosisLinkWindow_Click"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Диагноз">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <Label Content="Название диагноза:" />
+                        <TextBox Name="DiagnosisNameTextBox" Width="300" />
+                        <Button Content="Добавить" Width="100" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="AddDiagnosis_Click" />
+                        <Button Content="Добавить связь диагноза к врачу" Width="250" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="OpenDiagnosisDoctorLinkWindow_Click" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Врач">
+                <Grid Margin="10">
+                    <StackPanel>
+                        <Label Content="ФИО:" Margin="0,10,0,0" />
+                        <TextBox Name="DoctorFullNameTextBox" Width="300" />
+                        <Label Content="Специальность:" Margin="0,10,0,0" />
+                        <TextBox Name="DoctorSpecialtyTextBox" Width="300" />
+                        <Label Content="Номер кабинета:" Margin="0,10,0,0" />
+                        <TextBox Name="DoctorOfficeNumberTextBox" Width="300" />
+                        <Button Content="Добавить" Width="100" Margin="0,10,0,0"
+                                HorizontalAlignment="Left" Click="AddDoctor_Click" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

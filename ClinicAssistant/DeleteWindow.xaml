@@ -1,0 +1,149 @@
+﻿<Window x:Class="ClinicAssistant.DeleteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Удаление данных" Height="600" Width="800">
+    <Grid>
+        <TabControl>
+            <!-- Удаление Симптомов -->
+            <TabItem Header="Удалить Симптом">
+                <DockPanel Margin="10">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Поиск:" VerticalAlignment="Center"/>
+                        <TextBox Name="SearchSymptomTextBox" Width="200" Margin="5,0,0,0" 
+                                 TextChanged="SearchSymptomTextBox_TextChanged"/>
+                    </StackPanel>
+                    <DataGrid Name="SymptomsDataGrid" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding SymptomID}" Width="Auto"/>
+                            <DataGridTextColumn Header="Название Симптома" Binding="{Binding SymptomName}" Width="*"/>
+                            <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" 
+                                                Tag="{Binding SymptomID}" 
+                                                Click="DeleteSymptom_Click" 
+                                                Background="Red" Foreground="White"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Удаление Наводящих Вопросов -->
+            <TabItem Header="Удалить Наводящий Вопрос">
+                <DockPanel Margin="10">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Поиск:" VerticalAlignment="Center"/>
+                        <TextBox Name="SearchQuestionTextBox" Width="200" Margin="5,0,0,0" 
+                                 TextChanged="SearchQuestionTextBox_TextChanged"/>
+                    </StackPanel>
+                    <DataGrid Name="QuestionsDataGrid" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding QuestionID}" Width="Auto"/>
+                            <DataGridTextColumn Header="Вопрос" Binding="{Binding Question}" Width="*"/>
+                            <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" 
+                                                Tag="{Binding QuestionID}" 
+                                                Click="DeleteFollowUpQuestion_Click" 
+                                                Background="Red" Foreground="White"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Удаление Ответов -->
+            <TabItem Header="Удалить Ответ">
+                <DockPanel Margin="10">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Поиск:" VerticalAlignment="Center"/>
+                        <TextBox Name="SearchAnswerTextBox" Width="200" Margin="5,0,0,0" 
+                                 TextChanged="SearchAnswerTextBox_TextChanged"/>
+                    </StackPanel>
+                    <DataGrid Name="AnswersDataGrid" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding AnswerID}" Width="Auto"/>
+                            <DataGridTextColumn Header="Вопрос" Binding="{Binding Question}" Width="*"/>
+                            <DataGridTextColumn Header="Ответ" Binding="{Binding Answer}" Width="*"/>
+                            <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" 
+                                                Tag="{Binding AnswerID}" 
+                                                Click="DeleteAnswer_Click" 
+                                                Background="Red" Foreground="White"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Удаление Диагнозов -->
+            <TabItem Header="Удалить Диагноз">
+                <DockPanel Margin="10">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Поиск:" VerticalAlignment="Center"/>
+                        <TextBox Name="SearchDiagnosisTextBox" Width="200" Margin="5,0,0,0" 
+                                 TextChanged="SearchDiagnosisTextBox_TextChanged"/>
+                    </StackPanel>
+                    <DataGrid Name="DiagnosesDataGrid" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding DiagnosisID}" Width="Auto"/>
+                            <DataGridTextColumn Header="Название Диагноза" Binding="{Binding DiagnosisName}" Width="*"/>
+                            <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" 
+                                                Tag="{Binding DiagnosisID}" 
+                                                Click="DeleteDiagnosis_Click" 
+                                                Background="Red" Foreground="White"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- Удаление Врачей -->
+            <TabItem Header="Удалить Врача">
+                <DockPanel Margin="10">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Label Content="Поиск:" VerticalAlignment="Center"/>
+                        <TextBox Name="SearchDoctorTextBox" Width="200" Margin="5,0,0,0" 
+                                 TextChanged="SearchDoctorTextBox_TextChanged"/>
+                    </StackPanel>
+                    <DataGrid Name="DoctorsDataGrid" AutoGenerateColumns="False" 
+                              CanUserAddRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding DoctorID}" Width="Auto"/>
+                            <DataGridTextColumn Header="ФИО Врача" Binding="{Binding FullName}" Width="*"/>
+                            <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Удалить" 
+                                                Tag="{Binding DoctorID}" 
+                                                Click="DeleteDoctor_Click" 
+                                                Background="Red" Foreground="White"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

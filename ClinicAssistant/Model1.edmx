@@ -1,0 +1,512 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Хранилище PomoshnikPoliclinikiModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AnswerDiagnoses">
+          <Key>
+            <PropertyRef Name="AnswerID" />
+            <PropertyRef Name="DiagnosisID" />
+          </Key>
+          <Property Name="AnswerID" Type="int" Nullable="false" />
+          <Property Name="DiagnosisID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Answers">
+          <Key>
+            <PropertyRef Name="AnswerID" />
+          </Key>
+          <Property Name="AnswerID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="QuestionID" Type="int" />
+          <Property Name="Answer" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="Diagnoses">
+          <Key>
+            <PropertyRef Name="DiagnosisID" />
+          </Key>
+          <Property Name="DiagnosisID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DiagnosisName" Type="nvarchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="DoctorDiagnoses">
+          <Key>
+            <PropertyRef Name="DoctorID" />
+            <PropertyRef Name="DiagnosisID" />
+          </Key>
+          <Property Name="DoctorID" Type="int" Nullable="false" />
+          <Property Name="DiagnosisID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Doctors">
+          <Key>
+            <PropertyRef Name="DoctorID" />
+          </Key>
+          <Property Name="DoctorID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="100" />
+          <Property Name="Specialty" Type="nvarchar" MaxLength="100" />
+          <Property Name="OfficeNumber" Type="nvarchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="FollowUpQuestions">
+          <Key>
+            <PropertyRef Name="QuestionID" />
+          </Key>
+          <Property Name="QuestionID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SymptomID" Type="int" />
+          <Property Name="Question" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="PatientAnswers">
+          <Key>
+            <PropertyRef Name="PatientID" />
+            <PropertyRef Name="AnswerID" />
+          </Key>
+          <Property Name="PatientID" Type="int" Nullable="false" />
+          <Property Name="AnswerID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Patients">
+          <Key>
+            <PropertyRef Name="PatientID" />
+          </Key>
+          <Property Name="PatientID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="100" />
+          <Property Name="Age" Type="int" />
+          <Property Name="Gender" Type="nvarchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="PatientSymptoms">
+          <Key>
+            <PropertyRef Name="PatientID" />
+            <PropertyRef Name="SymptomID" />
+          </Key>
+          <Property Name="PatientID" Type="int" Nullable="false" />
+          <Property Name="SymptomID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Symptoms">
+          <Key>
+            <PropertyRef Name="SymptomID" />
+          </Key>
+          <Property Name="SymptomID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SymptomName" Type="nvarchar" MaxLength="100" />
+        </EntityType>
+        <Association Name="FK__AnswerDia__Answe__440B1D61">
+          <End Role="Answers" Type="Self.Answers" Multiplicity="1" />
+          <End Role="AnswerDiagnoses" Type="Self.AnswerDiagnoses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Answers">
+              <PropertyRef Name="AnswerID" />
+            </Principal>
+            <Dependent Role="AnswerDiagnoses">
+              <PropertyRef Name="AnswerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__AnswerDia__Diagn__44FF419A">
+          <End Role="Diagnoses" Type="Self.Diagnoses" Multiplicity="1" />
+          <End Role="AnswerDiagnoses" Type="Self.AnswerDiagnoses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Diagnoses">
+              <PropertyRef Name="DiagnosisID" />
+            </Principal>
+            <Dependent Role="AnswerDiagnoses">
+              <PropertyRef Name="DiagnosisID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Answers__Questio__3F466844">
+          <End Role="FollowUpQuestions" Type="Self.FollowUpQuestions" Multiplicity="0..1" />
+          <End Role="Answers" Type="Self.Answers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FollowUpQuestions">
+              <PropertyRef Name="QuestionID" />
+            </Principal>
+            <Dependent Role="Answers">
+              <PropertyRef Name="QuestionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DoctorDia__Diagn__4CA06362">
+          <End Role="Diagnoses" Type="Self.Diagnoses" Multiplicity="1" />
+          <End Role="DoctorDiagnoses" Type="Self.DoctorDiagnoses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Diagnoses">
+              <PropertyRef Name="DiagnosisID" />
+            </Principal>
+            <Dependent Role="DoctorDiagnoses">
+              <PropertyRef Name="DiagnosisID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__DoctorDia__Docto__4BAC3F29">
+          <End Role="Doctors" Type="Self.Doctors" Multiplicity="1" />
+          <End Role="DoctorDiagnoses" Type="Self.DoctorDiagnoses" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Doctors">
+              <PropertyRef Name="DoctorID" />
+            </Principal>
+            <Dependent Role="DoctorDiagnoses">
+              <PropertyRef Name="DoctorID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FollowUpQ__Sympt__3C69FB99">
+          <End Role="Symptoms" Type="Self.Symptoms" Multiplicity="0..1" />
+          <End Role="FollowUpQuestions" Type="Self.FollowUpQuestions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Symptoms">
+              <PropertyRef Name="SymptomID" />
+            </Principal>
+            <Dependent Role="FollowUpQuestions">
+              <PropertyRef Name="SymptomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__PatientAn__Answe__5070F446">
+          <End Role="Answers" Type="Self.Answers" Multiplicity="1" />
+          <End Role="PatientAnswers" Type="Self.PatientAnswers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Answers">
+              <PropertyRef Name="AnswerID" />
+            </Principal>
+            <Dependent Role="PatientAnswers">
+              <PropertyRef Name="AnswerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__PatientAn__Patie__4F7CD00D">
+          <End Role="Patients" Type="Self.Patients" Multiplicity="1" />
+          <End Role="PatientAnswers" Type="Self.PatientAnswers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Patients">
+              <PropertyRef Name="PatientID" />
+            </Principal>
+            <Dependent Role="PatientAnswers">
+              <PropertyRef Name="PatientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__PatientSy__Patie__47DBAE45">
+          <End Role="Patients" Type="Self.Patients" Multiplicity="1" />
+          <End Role="PatientSymptoms" Type="Self.PatientSymptoms" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Patients">
+              <PropertyRef Name="PatientID" />
+            </Principal>
+            <Dependent Role="PatientSymptoms">
+              <PropertyRef Name="PatientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__PatientSy__Sympt__48CFD27E">
+          <End Role="Symptoms" Type="Self.Symptoms" Multiplicity="1" />
+          <End Role="PatientSymptoms" Type="Self.PatientSymptoms" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Symptoms">
+              <PropertyRef Name="SymptomID" />
+            </Principal>
+            <Dependent Role="PatientSymptoms">
+              <PropertyRef Name="SymptomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Хранилище PomoshnikPoliclinikiModelContainer">
+          <EntitySet Name="AnswerDiagnoses" EntityType="Self.AnswerDiagnoses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Answers" EntityType="Self.Answers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Diagnoses" EntityType="Self.Diagnoses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DoctorDiagnoses" EntityType="Self.DoctorDiagnoses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Doctors" EntityType="Self.Doctors" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FollowUpQuestions" EntityType="Self.FollowUpQuestions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PatientAnswers" EntityType="Self.PatientAnswers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Patients" EntityType="Self.Patients" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PatientSymptoms" EntityType="Self.PatientSymptoms" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Symptoms" EntityType="Self.Symptoms" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__AnswerDia__Answe__440B1D61" Association="Self.FK__AnswerDia__Answe__440B1D61">
+            <End Role="Answers" EntitySet="Answers" />
+            <End Role="AnswerDiagnoses" EntitySet="AnswerDiagnoses" />
+          </AssociationSet>
+          <AssociationSet Name="FK__AnswerDia__Diagn__44FF419A" Association="Self.FK__AnswerDia__Diagn__44FF419A">
+            <End Role="Diagnoses" EntitySet="Diagnoses" />
+            <End Role="AnswerDiagnoses" EntitySet="AnswerDiagnoses" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Answers__Questio__3F466844" Association="Self.FK__Answers__Questio__3F466844">
+            <End Role="FollowUpQuestions" EntitySet="FollowUpQuestions" />
+            <End Role="Answers" EntitySet="Answers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DoctorDia__Diagn__4CA06362" Association="Self.FK__DoctorDia__Diagn__4CA06362">
+            <End Role="Diagnoses" EntitySet="Diagnoses" />
+            <End Role="DoctorDiagnoses" EntitySet="DoctorDiagnoses" />
+          </AssociationSet>
+          <AssociationSet Name="FK__DoctorDia__Docto__4BAC3F29" Association="Self.FK__DoctorDia__Docto__4BAC3F29">
+            <End Role="Doctors" EntitySet="Doctors" />
+            <End Role="DoctorDiagnoses" EntitySet="DoctorDiagnoses" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FollowUpQ__Sympt__3C69FB99" Association="Self.FK__FollowUpQ__Sympt__3C69FB99">
+            <End Role="Symptoms" EntitySet="Symptoms" />
+            <End Role="FollowUpQuestions" EntitySet="FollowUpQuestions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__PatientAn__Answe__5070F446" Association="Self.FK__PatientAn__Answe__5070F446">
+            <End Role="Answers" EntitySet="Answers" />
+            <End Role="PatientAnswers" EntitySet="PatientAnswers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__PatientAn__Patie__4F7CD00D" Association="Self.FK__PatientAn__Patie__4F7CD00D">
+            <End Role="Patients" EntitySet="Patients" />
+            <End Role="PatientAnswers" EntitySet="PatientAnswers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__PatientSy__Patie__47DBAE45" Association="Self.FK__PatientSy__Patie__47DBAE45">
+            <End Role="Patients" EntitySet="Patients" />
+            <End Role="PatientSymptoms" EntitySet="PatientSymptoms" />
+          </AssociationSet>
+          <AssociationSet Name="FK__PatientSy__Sympt__48CFD27E" Association="Self.FK__PatientSy__Sympt__48CFD27E">
+            <End Role="Symptoms" EntitySet="Symptoms" />
+            <End Role="PatientSymptoms" EntitySet="PatientSymptoms" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PomoshnikPoliclinikiModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Answer">
+          <Key>
+            <PropertyRef Name="AnswerID" />
+          </Key>
+          <Property Name="AnswerID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="QuestionID" Type="Int32" />
+          <Property Name="Answer1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="FollowUpQuestion" Relationship="Self.FK__Answers__Questio__3F466844" FromRole="Answers" ToRole="FollowUpQuestions" />
+          <NavigationProperty Name="Diagnoses" Relationship="Self.AnswerDiagnoses" FromRole="Answers" ToRole="Diagnoses" />
+          <NavigationProperty Name="Patients" Relationship="Self.PatientAnswers" FromRole="Answers" ToRole="Patients" />
+        </EntityType>
+        <EntityType Name="Diagnosis">
+          <Key>
+            <PropertyRef Name="DiagnosisID" />
+          </Key>
+          <Property Name="DiagnosisID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DiagnosisName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Answers" Relationship="Self.AnswerDiagnoses" FromRole="Diagnoses" ToRole="Answers" />
+          <NavigationProperty Name="Doctors" Relationship="Self.DoctorDiagnoses" FromRole="Diagnoses" ToRole="Doctors" />
+        </EntityType>
+        <EntityType Name="Doctor">
+          <Key>
+            <PropertyRef Name="DoctorID" />
+          </Key>
+          <Property Name="DoctorID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FullName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Specialty" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="OfficeNumber" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Diagnoses" Relationship="Self.DoctorDiagnoses" FromRole="Doctors" ToRole="Diagnoses" />
+        </EntityType>
+        <EntityType Name="FollowUpQuestion">
+          <Key>
+            <PropertyRef Name="QuestionID" />
+          </Key>
+          <Property Name="QuestionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SymptomID" Type="Int32" />
+          <Property Name="Question" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Answers" Relationship="Self.FK__Answers__Questio__3F466844" FromRole="FollowUpQuestions" ToRole="Answers" />
+          <NavigationProperty Name="Symptom" Relationship="Self.FK__FollowUpQ__Sympt__3C69FB99" FromRole="FollowUpQuestions" ToRole="Symptoms" />
+        </EntityType>
+        <EntityType Name="Patient">
+          <Key>
+            <PropertyRef Name="PatientID" />
+          </Key>
+          <Property Name="PatientID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FullName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Age" Type="Int32" />
+          <Property Name="Gender" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Answers" Relationship="Self.PatientAnswers" FromRole="Patients" ToRole="Answers" />
+          <NavigationProperty Name="Symptoms" Relationship="Self.PatientSymptoms" FromRole="Patients" ToRole="Symptoms" />
+        </EntityType>
+        <EntityType Name="Symptom">
+          <Key>
+            <PropertyRef Name="SymptomID" />
+          </Key>
+          <Property Name="SymptomID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SymptomName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="FollowUpQuestions" Relationship="Self.FK__FollowUpQ__Sympt__3C69FB99" FromRole="Symptoms" ToRole="FollowUpQuestions" />
+          <NavigationProperty Name="Patients" Relationship="Self.PatientSymptoms" FromRole="Symptoms" ToRole="Patients" />
+        </EntityType>
+        <Association Name="FK__Answers__Questio__3F466844">
+          <End Role="FollowUpQuestions" Type="Self.FollowUpQuestion" Multiplicity="0..1" />
+          <End Role="Answers" Type="Self.Answer" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FollowUpQuestions">
+              <PropertyRef Name="QuestionID" />
+            </Principal>
+            <Dependent Role="Answers">
+              <PropertyRef Name="QuestionID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FollowUpQ__Sympt__3C69FB99">
+          <End Role="Symptoms" Type="Self.Symptom" Multiplicity="0..1" />
+          <End Role="FollowUpQuestions" Type="Self.FollowUpQuestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Symptoms">
+              <PropertyRef Name="SymptomID" />
+            </Principal>
+            <Dependent Role="FollowUpQuestions">
+              <PropertyRef Name="SymptomID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="AnswerDiagnoses">
+          <End Role="Answers" Type="Self.Answer" Multiplicity="*" />
+          <End Role="Diagnoses" Type="Self.Diagnosis" Multiplicity="*" />
+        </Association>
+        <Association Name="DoctorDiagnoses">
+          <End Role="Diagnoses" Type="Self.Diagnosis" Multiplicity="*" />
+          <End Role="Doctors" Type="Self.Doctor" Multiplicity="*" />
+        </Association>
+        <Association Name="PatientAnswers">
+          <End Role="Answers" Type="Self.Answer" Multiplicity="*" />
+          <End Role="Patients" Type="Self.Patient" Multiplicity="*" />
+        </Association>
+        <Association Name="PatientSymptoms">
+          <End Role="Patients" Type="Self.Patient" Multiplicity="*" />
+          <End Role="Symptoms" Type="Self.Symptom" Multiplicity="*" />
+        </Association>
+        <EntityContainer Name="PomoshnikPoliclinikiEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Answers" EntityType="Self.Answer" />
+          <EntitySet Name="Diagnoses" EntityType="Self.Diagnosis" />
+          <EntitySet Name="Doctors" EntityType="Self.Doctor" />
+          <EntitySet Name="FollowUpQuestions" EntityType="Self.FollowUpQuestion" />
+          <EntitySet Name="Patients" EntityType="Self.Patient" />
+          <EntitySet Name="Symptoms" EntityType="Self.Symptom" />
+          <AssociationSet Name="FK__Answers__Questio__3F466844" Association="Self.FK__Answers__Questio__3F466844">
+            <End Role="FollowUpQuestions" EntitySet="FollowUpQuestions" />
+            <End Role="Answers" EntitySet="Answers" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FollowUpQ__Sympt__3C69FB99" Association="Self.FK__FollowUpQ__Sympt__3C69FB99">
+            <End Role="Symptoms" EntitySet="Symptoms" />
+            <End Role="FollowUpQuestions" EntitySet="FollowUpQuestions" />
+          </AssociationSet>
+          <AssociationSet Name="AnswerDiagnoses" Association="Self.AnswerDiagnoses">
+            <End Role="Answers" EntitySet="Answers" />
+            <End Role="Diagnoses" EntitySet="Diagnoses" />
+          </AssociationSet>
+          <AssociationSet Name="DoctorDiagnoses" Association="Self.DoctorDiagnoses">
+            <End Role="Diagnoses" EntitySet="Diagnoses" />
+            <End Role="Doctors" EntitySet="Doctors" />
+          </AssociationSet>
+          <AssociationSet Name="PatientAnswers" Association="Self.PatientAnswers">
+            <End Role="Answers" EntitySet="Answers" />
+            <End Role="Patients" EntitySet="Patients" />
+          </AssociationSet>
+          <AssociationSet Name="PatientSymptoms" Association="Self.PatientSymptoms">
+            <End Role="Patients" EntitySet="Patients" />
+            <End Role="Symptoms" EntitySet="Symptoms" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище PomoshnikPoliclinikiModelContainer" CdmEntityContainer="PomoshnikPoliclinikiEntities">
+          <EntitySetMapping Name="Answers">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.Answer">
+              <MappingFragment StoreEntitySet="Answers">
+                <ScalarProperty Name="AnswerID" ColumnName="AnswerID" />
+                <ScalarProperty Name="QuestionID" ColumnName="QuestionID" />
+                <ScalarProperty Name="Answer1" ColumnName="Answer" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Diagnoses">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.Diagnosis">
+              <MappingFragment StoreEntitySet="Diagnoses">
+                <ScalarProperty Name="DiagnosisID" ColumnName="DiagnosisID" />
+                <ScalarProperty Name="DiagnosisName" ColumnName="DiagnosisName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Doctors">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.Doctor">
+              <MappingFragment StoreEntitySet="Doctors">
+                <ScalarProperty Name="DoctorID" ColumnName="DoctorID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Specialty" ColumnName="Specialty" />
+                <ScalarProperty Name="OfficeNumber" ColumnName="OfficeNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FollowUpQuestions">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.FollowUpQuestion">
+              <MappingFragment StoreEntitySet="FollowUpQuestions">
+                <ScalarProperty Name="QuestionID" ColumnName="QuestionID" />
+                <ScalarProperty Name="SymptomID" ColumnName="SymptomID" />
+                <ScalarProperty Name="Question" ColumnName="Question" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Patients">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.Patient">
+              <MappingFragment StoreEntitySet="Patients">
+                <ScalarProperty Name="PatientID" ColumnName="PatientID" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Age" ColumnName="Age" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Symptoms">
+            <EntityTypeMapping TypeName="PomoshnikPoliclinikiModel.Symptom">
+              <MappingFragment StoreEntitySet="Symptoms">
+                <ScalarProperty Name="SymptomID" ColumnName="SymptomID" />
+                <ScalarProperty Name="SymptomName" ColumnName="SymptomName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="AnswerDiagnoses" TypeName="PomoshnikPoliclinikiModel.AnswerDiagnoses" StoreEntitySet="AnswerDiagnoses">
+            <EndProperty Name="Answers">
+              <ScalarProperty Name="AnswerID" ColumnName="AnswerID" />
+            </EndProperty>
+            <EndProperty Name="Diagnoses">
+              <ScalarProperty Name="DiagnosisID" ColumnName="DiagnosisID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <AssociationSetMapping Name="DoctorDiagnoses" TypeName="PomoshnikPoliclinikiModel.DoctorDiagnoses" StoreEntitySet="DoctorDiagnoses">
+            <EndProperty Name="Diagnoses">
+              <ScalarProperty Name="DiagnosisID" ColumnName="DiagnosisID" />
+            </EndProperty>
+            <EndProperty Name="Doctors">
+              <ScalarProperty Name="DoctorID" ColumnName="DoctorID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <AssociationSetMapping Name="PatientAnswers" TypeName="PomoshnikPoliclinikiModel.PatientAnswers" StoreEntitySet="PatientAnswers">
+            <EndProperty Name="Answers">
+              <ScalarProperty Name="AnswerID" ColumnName="AnswerID" />
+            </EndProperty>
+            <EndProperty Name="Patients">
+              <ScalarProperty Name="PatientID" ColumnName="PatientID" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <AssociationSetMapping Name="PatientSymptoms" TypeName="PomoshnikPoliclinikiModel.PatientSymptoms" StoreEntitySet="PatientSymptoms">
+            <EndProperty Name="Patients">
+              <ScalarProperty Name="PatientID" ColumnName="PatientID" />
+            </EndProperty>
+            <EndProperty Name="Symptoms">
+              <ScalarProperty Name="SymptomID" ColumnName="SymptomID" />
+            </EndProperty>
+          </AssociationSetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
