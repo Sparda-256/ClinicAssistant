@@ -1,145 +1,205 @@
 ﻿using System;
-using System.Data.SqlClient;
-using System.Windows;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace ClinicAssistant
 {
     public partial class FollowUpQuestionsWindow : Window
     {
-        private int patientId;
-        private List<QuestionControl> questionControls = new List<QuestionControl>();
+        private readonly int patientId;
+        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
+
+        public ObservableCollection<QuestionViewModel> Questions { get; set; } = new ObservableCollection<QuestionViewModel>();
 
         public FollowUpQuestionsWindow(int patientId)
         {
             InitializeComponent();
             this.patientId = patientId;
-            LoadQuestions();
+            this.DataContext = this;
+            LoadQuestionsAsync();
         }
 
-        // Загрузка вопросов и вариантов ответов из базы данных
-        private void LoadQuestions()
+        private async void LoadQuestionsAsync()
         {
-            string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                try
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    connection.Open();
+                    await connection.OpenAsync();
 
-                    // Получаем список симптомов пациента
                     string symptomQuery = "SELECT SymptomID FROM PatientSymptoms WHERE PatientID = @PatientID";
                     SqlCommand symptomCommand = new SqlCommand(symptomQuery, connection);
                     symptomCommand.Parameters.AddWithValue("@PatientID", patientId);
-                    SqlDataReader symptomReader = symptomCommand.ExecuteReader();
 
                     List<int> symptomIds = new List<int>();
-                    while (symptomReader.Read())
+                    using (SqlDataReader symptomReader = await symptomCommand.ExecuteReaderAsync())
                     {
-                        symptomIds.Add((int)symptomReader["SymptomID"]);
-                    }
-                    symptomReader.Close();
-
-                    // Получаем наводящие вопросы для каждого симптома
-                    foreach (int symptomId in symptomIds)
-                    {
-                        string questionQuery = "SELECT QuestionID, Question FROM FollowUpQuestions WHERE SymptomID = @SymptomID";
-                        SqlCommand questionCommand = new SqlCommand(questionQuery, connection);
-                        questionCommand.Parameters.AddWithValue("@SymptomID", symptomId);
-                        SqlDataReader questionReader = questionCommand.ExecuteReader();
-
-                        while (questionReader.Read())
+                        while (await symptomReader.ReadAsync())
                         {
-                            int questionId = (int)questionReader["QuestionID"];
-                            string questionText = questionReader["Question"].ToString();
-
-                            QuestionControl questionControl = new QuestionControl(questionId, questionText);
-                            questionControls.Add(questionControl);
-                            QuestionsPanel.Items.Add(questionControl);
+                            symptomIds.Add(symptomReader.GetInt32(symptomReader.GetOrdinal("SymptomID")));
                         }
-                        questionReader.Close();
                     }
 
-                    // Загрузка вариантов ответов для каждого вопроса
-                    foreach (var questionControl in questionControls)
+                    if (symptomIds.Count == 0)
+                    {
+                        MessageBox.Show("У пациента нет связанных симптомов.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.Close();
+                        return;
+                    }
+
+                    string questionQuery = @"
+                        SELECT QuestionID, SymptomID, Question 
+                        FROM FollowUpQuestions 
+                        WHERE SymptomID IN (" + string.Join(",", symptomIds) + ")";
+
+                    SqlCommand questionCommand = new SqlCommand(questionQuery, connection);
+                    List<QuestionModel> questions = new List<QuestionModel>();
+
+                    using (SqlDataReader questionReader = await questionCommand.ExecuteReaderAsync())
+                    {
+                        while (await questionReader.ReadAsync())
+                        {
+                            questions.Add(new QuestionModel
+                            {
+                                QuestionID = questionReader.GetInt32(questionReader.GetOrdinal("QuestionID")),
+                                SymptomID = questionReader.GetInt32(questionReader.GetOrdinal("SymptomID")),
+                                QuestionText = questionReader.GetString(questionReader.GetOrdinal("Question"))
+                            });
+                        }
+                    }
+
+                    if (questions.Count == 0)
+                    {
+                        MessageBox.Show("Нет наводящих вопросов для выбранных симптомов.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                        this.Close();
+                        return;
+                    }
+
+                    foreach (var question in questions)
                     {
                         string answerQuery = "SELECT AnswerID, Answer FROM Answers WHERE QuestionID = @QuestionID";
                         SqlCommand answerCommand = new SqlCommand(answerQuery, connection);
-                        answerCommand.Parameters.AddWithValue("@QuestionID", questionControl.QuestionId);
-                        SqlDataReader answerReader = answerCommand.ExecuteReader();
+                        answerCommand.Parameters.AddWithValue("@QuestionID", question.QuestionID);
 
-                        while (answerReader.Read())
+                        List<AnswerModel> answers = new List<AnswerModel>();
+                        using (SqlDataReader answerReader = await answerCommand.ExecuteReaderAsync())
                         {
-                            int answerId = (int)answerReader["AnswerID"];
-                            string answerText = answerReader["Answer"].ToString();
-
-                            ComboBoxItem comboBoxItem = new ComboBoxItem { Content = answerText, Tag = answerId };
-                            questionControl.AnswersComboBox.Items.Add(comboBoxItem);
+                            while (await answerReader.ReadAsync())
+                            {
+                                answers.Add(new AnswerModel
+                                {
+                                    AnswerID = answerReader.GetInt32(answerReader.GetOrdinal("AnswerID")),
+                                    AnswerText = answerReader.GetString(answerReader.GetOrdinal("Answer"))
+                                });
+                            }
                         }
-                        answerReader.Close();
+
+                        if (answers.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        Questions.Add(new QuestionViewModel
+                        {
+                            QuestionID = question.QuestionID,
+                            QuestionText = question.QuestionText,
+                            Answers = new ObservableCollection<AnswerModel>(answers)
+                        });
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при загрузке вопросов: " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке вопросов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
             }
         }
 
-        // Обработка нажатия на кнопку "Продолжить"
-        private void SubmitButton_Click(object sender, RoutedEventArgs e)
+
+        private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            foreach (var question in Questions)
             {
-                try
+                if (question.SelectedAnswerID == null)
                 {
-                    connection.Open();
-
-                    foreach (var questionControl in questionControls)
-                    {
-                        ComboBoxItem selectedAnswer = questionControl.AnswersComboBox.SelectedItem as ComboBoxItem;
-                        if (selectedAnswer != null)
-                        {
-                            int answerId = (int)selectedAnswer.Tag;
-
-                            string query = "INSERT INTO PatientAnswers (PatientID, AnswerID) VALUES (@PatientID, @AnswerID)";
-                            SqlCommand command = new SqlCommand(query, connection);
-                            command.Parameters.AddWithValue("@PatientID", patientId);
-                            command.Parameters.AddWithValue("@AnswerID", answerId);
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при сохранении ответов: " + ex.Message);
+                    MessageBox.Show($"Пожалуйста, ответьте на вопрос: \"{question.QuestionText}\"", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
 
-            // Открытие окна DiagnosesWindow
-            DiagnosesWindow diagnosesWindow = new DiagnosesWindow(patientId);
-            diagnosesWindow.Show();
-            this.Close();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            string insertQuery = "INSERT INTO PatientAnswers (PatientID, AnswerID) VALUES (@PatientID, @AnswerID)";
+                            SqlCommand insertCommand = new SqlCommand(insertQuery, connection, transaction);
+                            insertCommand.Parameters.Add("@PatientID", System.Data.SqlDbType.Int).Value = patientId;
+                            insertCommand.Parameters.Add("@AnswerID", System.Data.SqlDbType.Int);
+
+                            foreach (var question in Questions)
+                            {
+                                insertCommand.Parameters["@AnswerID"].Value = question.SelectedAnswerID.Value;
+                                await insertCommand.ExecuteNonQueryAsync();
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception exInner)
+                        {
+                            transaction.Rollback();
+                            MessageBox.Show("Ошибка при сохранении ответов: " + exInner.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                }
+
+                DiagnosesWindow diagnosesWindow = new DiagnosesWindow(patientId);
+                diagnosesWindow.Show();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при сохранении данных: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 
-    // Вспомогательный класс для представления вопроса и вариантов ответов
-    public class QuestionControl : StackPanel
+    public class QuestionModel
     {
-        public int QuestionId { get; private set; }
-        public ComboBox AnswersComboBox { get; private set; }
+        public int QuestionID { get; set; }
+        public int SymptomID { get; set; }
+        public string QuestionText { get; set; }
+    }
 
-        public QuestionControl(int questionId, string questionText)
+    public class AnswerModel
+    {
+        public int AnswerID { get; set; }
+        public string AnswerText { get; set; }
+    }
+
+    public class QuestionViewModel : DependencyObject
+    {
+        public int QuestionID { get; set; }
+        public string QuestionText { get; set; }
+        public ObservableCollection<AnswerModel> Answers { get; set; }
+
+        public int? SelectedAnswerID
         {
-            this.QuestionId = questionId;
-            TextBlock questionTextBlock = new TextBlock { Text = questionText, Margin = new Thickness(0, 10, 0, 5) };
-            this.Children.Add(questionTextBlock);
-
-            AnswersComboBox = new ComboBox { Width = 300 };
-            this.Children.Add(AnswersComboBox);
+            get { return (int?)GetValue(SelectedAnswerIDProperty); }
+            set { SetValue(SelectedAnswerIDProperty, value); }
         }
+
+        public static readonly DependencyProperty SelectedAnswerIDProperty =
+            DependencyProperty.Register("SelectedAnswerID", typeof(int?), typeof(QuestionViewModel), new PropertyMetadata(null));
     }
 }

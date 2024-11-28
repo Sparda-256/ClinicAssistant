@@ -1,33 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Collections.Generic;
 
 namespace ClinicAssistant
 {
     public partial class DiagnosesWindow : Window
     {
-        private int patientId;
+        private readonly int patientId;
+        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
+
+        public ObservableCollection<DiagnosisData> Diagnoses { get; set; } = new ObservableCollection<DiagnosisData>();
 
         public DiagnosesWindow(int patientId)
         {
             InitializeComponent();
             this.patientId = patientId;
-            LoadDiagnoses();
+            DiagnosesDataGrid.ItemsSource = Diagnoses;
+            LoadDiagnosesAsync();
         }
 
-        // Загрузка диагнозов и информации о враче
-        private void LoadDiagnoses()
+        private async void LoadDiagnosesAsync()
         {
-            string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                try
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    connection.Open();
+                    await connection.OpenAsync();
 
-                    // Получаем возможные диагнозы на основе ответов пациента
                     string diagnosesQuery = @"
                         SELECT d.DiagnosisID, d.DiagnosisName, COUNT(pa.AnswerID) AS AnswerMatches
                         FROM PatientAnswers pa
@@ -36,79 +39,124 @@ namespace ClinicAssistant
                         WHERE pa.PatientID = @PatientID
                         GROUP BY d.DiagnosisID, d.DiagnosisName
                         ORDER BY AnswerMatches DESC";
+
                     SqlCommand diagnosesCommand = new SqlCommand(diagnosesQuery, connection);
                     diagnosesCommand.Parameters.AddWithValue("@PatientID", patientId);
 
-                    SqlDataReader reader = diagnosesCommand.ExecuteReader();
                     List<DiagnosisData> diagnoses = new List<DiagnosisData>();
                     int totalMatches = 0;
 
-                    while (reader.Read())
+                    using (SqlDataReader reader = await diagnosesCommand.ExecuteReaderAsync())
                     {
-                        int diagnosisId = (int)reader["DiagnosisID"];
-                        string diagnosisName = reader["DiagnosisName"].ToString();
-                        int answerMatches = (int)reader["AnswerMatches"];
+                        while (await reader.ReadAsync())
+                        {
+                            int diagnosisId = reader.GetInt32(reader.GetOrdinal("DiagnosisID"));
+                            string diagnosisName = reader.GetString(reader.GetOrdinal("DiagnosisName"));
+                            int answerMatches = reader.GetInt32(reader.GetOrdinal("AnswerMatches"));
 
-                        // Собираем общий счет совпадений для вычисления процента
-                        totalMatches += answerMatches;
-                        diagnoses.Add(new DiagnosisData { DiagnosisID = diagnosisId, Name = diagnosisName, Matches = answerMatches });
+                            totalMatches += answerMatches;
+                            diagnoses.Add(new DiagnosisData
+                            {
+                                DiagnosisID = diagnosisId,
+                                Name = diagnosisName,
+                                Matches = answerMatches
+                            });
+                        }
                     }
-                    reader.Close();
 
-                    // Вывод диагнозов с процентным соотношением
                     foreach (var diagnosis in diagnoses)
                     {
                         double percentage = totalMatches > 0 ? (double)diagnosis.Matches / totalMatches * 100 : 0;
-                        TextBlock diagnosisTextBlock = new TextBlock
-                        {
-                            Text = $"{diagnosis.Name}: {percentage:F2}%",
-                            FontSize = 14,
-                            Margin = new Thickness(0, 5, 0, 5)
-                        };
-                        DiagnosesPanel.Items.Add(diagnosisTextBlock);
+                        diagnosis.Percentage = percentage;
+                        Diagnoses.Add(diagnosis);
                     }
 
-                    // Получение информации о враче для наиболее вероятного диагноза
                     if (diagnoses.Count > 0)
                     {
-                        int mostLikelyDiagnosisId = diagnoses[0].DiagnosisID;
-
-                        string doctorQuery = @"
-                            SELECT doc.FullName, doc.OfficeNumber
-                            FROM DoctorDiagnoses dd
-                            JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
-                            WHERE dd.DiagnosisID = @DiagnosisID";
-                        SqlCommand doctorCommand = new SqlCommand(doctorQuery, connection);
-                        doctorCommand.Parameters.AddWithValue("@DiagnosisID", mostLikelyDiagnosisId);
-
-                        SqlDataReader doctorReader = doctorCommand.ExecuteReader();
-                        if (doctorReader.Read())
-                        {
-                            string doctorName = doctorReader["FullName"].ToString();
-                            string officeNumber = doctorReader["OfficeNumber"].ToString();
-                            DoctorInfoTextBlock.Text = $"ФИО: {doctorName}, Кабинет: {officeNumber}";
-                        }
-                        doctorReader.Close();
+                        int topDiagnosisId = diagnoses[0].DiagnosisID;
+                        await LoadDoctorsForDiagnosisAsync(connection, topDiagnosisId);
+                    }
+                    else
+                    {
+                        DoctorInfoTextBlock.Text = "Не найдено диагнозов.";
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при загрузке данных: " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке данных: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+ 
+        /// <param name="connection">Открытое подключение к базе данных</param>
+        /// <param name="diagnosisId">ID диагноза</param>
+        private async Task LoadDoctorsForDiagnosisAsync(SqlConnection connection, int diagnosisId)
+        {
+            try
+            {
+                string doctorQuery = @"
+                    SELECT doc.FullName, doc.OfficeNumber
+                    FROM DoctorDiagnoses dd
+                    JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
+                    WHERE dd.DiagnosisID = @DiagnosisID";
+
+                SqlCommand doctorCommand = new SqlCommand(doctorQuery, connection);
+                doctorCommand.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
+
+                List<DoctorData> doctors = new List<DoctorData>();
+
+                using (SqlDataReader doctorReader = await doctorCommand.ExecuteReaderAsync())
+                {
+                    while (await doctorReader.ReadAsync())
+                    {
+                        string doctorName = doctorReader.GetString(doctorReader.GetOrdinal("FullName"));
+                        string officeNumber = doctorReader.GetString(doctorReader.GetOrdinal("OfficeNumber"));
+
+                        doctors.Add(new DoctorData
+                        {
+                            FullName = doctorName,
+                            OfficeNumber = officeNumber
+                        });
+                    }
+                }
+
+                if (doctors.Count > 0)
+                {
+                    string doctorInfo = string.Join("\n", doctors.ConvertAll(d => $"ФИО: {d.FullName}, Кабинет: {d.OfficeNumber}"));
+                    DoctorInfoTextBlock.Text = doctorInfo;
+                }
+                else
+                {
+                    DoctorInfoTextBlock.Text = "Врачи не назначены для данного диагноза.";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке информации о враче: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        // Вспомогательный класс для хранения данных о диагнозах
-        private class DiagnosisData
+
+        public class DiagnosisData
         {
             public int DiagnosisID { get; set; }
             public string Name { get; set; }
             public int Matches { get; set; }
+            public double Percentage { get; set; }
+        }
+
+
+        public class DoctorData
+        {
+            public string FullName { get; set; }
+            public string OfficeNumber { get; set; }
         }
     }
 }
