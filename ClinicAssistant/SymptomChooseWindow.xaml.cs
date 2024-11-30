@@ -1,6 +1,8 @@
-﻿using System;
+﻿// SymptomChooseWindow.xaml.cs
+using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,32 +18,56 @@ namespace ClinicAssistant
         private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
 
         // Коллекция для хранения симптомов
-        private List<Symptom> allSymptoms = new List<Symptom>();
+        private ObservableCollection<Symptom> allSymptoms = new ObservableCollection<Symptom>();
+
+        // Коллекция для хранения выбранных симптомов
+        private HashSet<int> selectedSymptomIds = new HashSet<int>();
 
         public SymptomChooseWindow(int patientId)
         {
             InitializeComponent();
             this.patientId = patientId;
+            SymptomsListBox.ItemsSource = allSymptoms;
             LoadSymptoms();
         }
 
         // Класс для представления симптома
-        public class Symptom
+        public class Symptom : INotifyPropertyChanged
         {
+            private bool isSelected;
+
             public int SymptomID { get; set; }
             public string SymptomName { get; set; }
-            public bool IsSelected { get; set; }
+
+            public bool IsSelected
+            {
+                get => isSelected;
+                set
+                {
+                    if (isSelected != value)
+                    {
+                        isSelected = value;
+                        OnPropertyChanged(nameof(IsSelected));
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected void OnPropertyChanged(string propertyName)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         // Загрузка симптомов из базы данных
         private void LoadSymptoms(string search = "")
         {
-            allSymptoms.Clear();
-            SymptomsListBox.ItemsSource = null;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                try
+                allSymptoms.Clear();
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
                     string query = "SELECT SymptomID, SymptomName FROM Symptoms";
@@ -62,39 +88,34 @@ namespace ClinicAssistant
                         {
                             while (reader.Read())
                             {
+                                int id = reader.GetInt32(reader.GetOrdinal("SymptomID"));
+                                string name = reader.GetString(reader.GetOrdinal("SymptomName"));
+
                                 Symptom symptom = new Symptom
                                 {
-                                    SymptomID = reader.GetInt32(reader.GetOrdinal("SymptomID")),
-                                    SymptomName = reader.GetString(reader.GetOrdinal("SymptomName")),
-                                    IsSelected = false
+                                    SymptomID = id,
+                                    SymptomName = name,
+                                    IsSelected = selectedSymptomIds.Contains(id)
                                 };
+
+                                // Подписка на изменение свойства
+                                symptom.PropertyChanged += Symptom_PropertyChanged;
+
                                 allSymptoms.Add(symptom);
                             }
                         }
                     }
-
-                    SymptomsListBox.ItemsSource = allSymptoms;
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при загрузке симптомов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке симптомов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         // Обработка нажатия на кнопку "Продолжить"
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            List<int> selectedSymptomIds = new List<int>();
-
-            foreach (Symptom symptom in allSymptoms)
-            {
-                if (symptom.IsSelected)
-                {
-                    selectedSymptomIds.Add(symptom.SymptomID);
-                }
-            }
-
             if (selectedSymptomIds.Count == 0)
             {
                 MessageBox.Show("Пожалуйста, выберите хотя бы один симптом.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -151,6 +172,36 @@ namespace ClinicAssistant
         {
             string searchText = SearchSymptomTextBox.Text.Trim();
             LoadSymptoms(searchText);
+        }
+
+        // Обработка изменения свойства IsSelected у симптома
+        private void Symptom_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsSelected")
+            {
+                var symptom = sender as Symptom;
+                if (symptom != null)
+                {
+                    if (symptom.IsSelected)
+                    {
+                        selectedSymptomIds.Add(symptom.SymptomID);
+                    }
+                    else
+                    {
+                        selectedSymptomIds.Remove(symptom.SymptomID);
+                    }
+                }
+            }
+        }
+
+        // Отписка от событий при закрытии окна (опционально)
+        protected override void OnClosed(EventArgs e)
+        {
+            foreach (var symptom in allSymptoms)
+            {
+                symptom.PropertyChanged -= Symptom_PropertyChanged;
+            }
+            base.OnClosed(e);
         }
     }
 }

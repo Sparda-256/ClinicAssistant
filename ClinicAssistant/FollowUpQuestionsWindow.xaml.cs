@@ -1,4 +1,5 @@
-﻿using System;
+﻿// FollowUpQuestionsWindow.xaml.cs
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
@@ -8,11 +9,15 @@ using System.Windows.Controls;
 
 namespace ClinicAssistant
 {
+    /// <summary>
+    /// Логика взаимодействия для FollowUpQuestionsWindow.xaml
+    /// </summary>
     public partial class FollowUpQuestionsWindow : Window
     {
         private readonly int patientId;
         private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
 
+        // Коллекция для хранения вопросов
         public ObservableCollection<QuestionViewModel> Questions { get; set; } = new ObservableCollection<QuestionViewModel>();
 
         public FollowUpQuestionsWindow(int patientId)
@@ -23,6 +28,9 @@ namespace ClinicAssistant
             LoadQuestionsAsync();
         }
 
+        /// <summary>
+        /// Загрузка вопросов на основе выбранных симптомов пациента
+        /// </summary>
         private async void LoadQuestionsAsync()
         {
             try
@@ -31,6 +39,7 @@ namespace ClinicAssistant
                 {
                     await connection.OpenAsync();
 
+                    // Получение SymptomID, связанных с пациентом
                     string symptomQuery = "SELECT SymptomID FROM PatientSymptoms WHERE PatientID = @PatientID";
                     SqlCommand symptomCommand = new SqlCommand(symptomQuery, connection);
                     symptomCommand.Parameters.AddWithValue("@PatientID", patientId);
@@ -51,10 +60,12 @@ namespace ClinicAssistant
                         return;
                     }
 
+                    // Получение вопросов, связанных с симптомами
                     string questionQuery = @"
-                        SELECT QuestionID, SymptomID, Question 
-                        FROM FollowUpQuestions 
-                        WHERE SymptomID IN (" + string.Join(",", symptomIds) + ")";
+                        SELECT fq.QuestionID, fq.SymptomID, s.SymptomName, fq.Question 
+                        FROM FollowUpQuestions fq
+                        JOIN Symptoms s ON fq.SymptomID = s.SymptomID
+                        WHERE fq.SymptomID IN (" + string.Join(",", symptomIds) + ")";
 
                     SqlCommand questionCommand = new SqlCommand(questionQuery, connection);
                     List<QuestionModel> questions = new List<QuestionModel>();
@@ -67,6 +78,7 @@ namespace ClinicAssistant
                             {
                                 QuestionID = questionReader.GetInt32(questionReader.GetOrdinal("QuestionID")),
                                 SymptomID = questionReader.GetInt32(questionReader.GetOrdinal("SymptomID")),
+                                SymptomName = questionReader.GetString(questionReader.GetOrdinal("SymptomName")),
                                 QuestionText = questionReader.GetString(questionReader.GetOrdinal("Question"))
                             });
                         }
@@ -79,6 +91,7 @@ namespace ClinicAssistant
                         return;
                     }
 
+                    // Загрузка ответов для каждого вопроса
                     foreach (var question in questions)
                     {
                         string answerQuery = "SELECT AnswerID, Answer FROM Answers WHERE QuestionID = @QuestionID";
@@ -100,12 +113,13 @@ namespace ClinicAssistant
 
                         if (answers.Count == 0)
                         {
-                            continue;
+                            continue; // Пропускаем вопросы без ответов
                         }
 
                         Questions.Add(new QuestionViewModel
                         {
                             QuestionID = question.QuestionID,
+                            SymptomName = question.SymptomName, // Устанавливаем имя симптома
                             QuestionText = question.QuestionText,
                             Answers = new ObservableCollection<AnswerModel>(answers)
                         });
@@ -119,9 +133,12 @@ namespace ClinicAssistant
             }
         }
 
-
+        /// <summary>
+        /// Обработка нажатия на кнопку "Продолжить"
+        /// </summary>
         private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка, что все вопросы имеют выбранные ответы
             foreach (var question in Questions)
             {
                 if (question.SelectedAnswerID == null)
@@ -163,6 +180,7 @@ namespace ClinicAssistant
                     }
                 }
 
+                // Открытие окна DiagnosesWindow после успешного сохранения
                 DiagnosesWindow diagnosesWindow = new DiagnosesWindow(patientId);
                 diagnosesWindow.Show();
                 this.Close();
@@ -174,22 +192,33 @@ namespace ClinicAssistant
         }
     }
 
+    /// <summary>
+    /// Модель данных для вопроса
+    /// </summary>
     public class QuestionModel
     {
         public int QuestionID { get; set; }
         public int SymptomID { get; set; }
+        public string SymptomName { get; set; }
         public string QuestionText { get; set; }
     }
 
+    /// <summary>
+    /// Модель данных для ответа
+    /// </summary>
     public class AnswerModel
     {
         public int AnswerID { get; set; }
         public string AnswerText { get; set; }
     }
 
+    /// <summary>
+    /// ViewModel для отображения вопроса в интерфейсе
+    /// </summary>
     public class QuestionViewModel : DependencyObject
     {
         public int QuestionID { get; set; }
+        public string SymptomName { get; set; } // Имя симптома для группировки
         public string QuestionText { get; set; }
         public ObservableCollection<AnswerModel> Answers { get; set; }
 

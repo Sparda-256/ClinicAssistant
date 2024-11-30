@@ -32,13 +32,13 @@ namespace ClinicAssistant
                     await connection.OpenAsync();
 
                     string diagnosesQuery = @"
-                        SELECT d.DiagnosisID, d.DiagnosisName, COUNT(pa.AnswerID) AS AnswerMatches
-                        FROM PatientAnswers pa
-                        JOIN AnswerDiagnoses ad ON pa.AnswerID = ad.AnswerID
-                        JOIN Diagnoses d ON ad.DiagnosisID = d.DiagnosisID
-                        WHERE pa.PatientID = @PatientID
-                        GROUP BY d.DiagnosisID, d.DiagnosisName
-                        ORDER BY AnswerMatches DESC";
+                SELECT d.DiagnosisID, d.DiagnosisName, COUNT(pa.AnswerID) AS AnswerMatches
+                FROM PatientAnswers pa
+                JOIN AnswerDiagnoses ad ON pa.AnswerID = ad.AnswerID
+                JOIN Diagnoses d ON ad.DiagnosisID = d.DiagnosisID
+                WHERE pa.PatientID = @PatientID
+                GROUP BY d.DiagnosisID, d.DiagnosisName
+                ORDER BY AnswerMatches DESC";
 
                     SqlCommand diagnosesCommand = new SqlCommand(diagnosesQuery, connection);
                     diagnosesCommand.Parameters.AddWithValue("@PatientID", patientId);
@@ -64,11 +64,17 @@ namespace ClinicAssistant
                         }
                     }
 
+                    // Clear previous records for the patient in PatientDiagnoses
+                    await ClearExistingDiagnosesAsync(connection, patientId);
+
                     foreach (var diagnosis in diagnoses)
                     {
                         double percentage = totalMatches > 0 ? (double)diagnosis.Matches / totalMatches * 100 : 0;
                         diagnosis.Percentage = percentage;
                         Diagnoses.Add(diagnosis);
+
+                        // Save diagnosis to PatientDiagnoses table
+                        await SaveDiagnosisToDatabaseAsync(connection, patientId, diagnosis.DiagnosisID, (int)Math.Round(percentage));
                     }
 
                     if (diagnoses.Count > 0)
@@ -88,7 +94,42 @@ namespace ClinicAssistant
             }
         }
 
- 
+        private async Task ClearExistingDiagnosesAsync(SqlConnection connection, int patientId)
+        {
+            try
+            {
+                string deleteQuery = "DELETE FROM PatientDiagnoses WHERE PatientID = @PatientID";
+                SqlCommand deleteCommand = new SqlCommand(deleteQuery, connection);
+                deleteCommand.Parameters.AddWithValue("@PatientID", patientId);
+                await deleteCommand.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при очистке старых данных о диагнозах: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task SaveDiagnosisToDatabaseAsync(SqlConnection connection, int patientId, int diagnosisId, int percentage)
+        {
+            try
+            {
+                string insertQuery = @"
+            INSERT INTO PatientDiagnoses (PatientID, DiagnosisID, Percentageofdiagnosis)
+            VALUES (@PatientID, @DiagnosisID, @Percentageofdiagnosis)";
+
+                SqlCommand insertCommand = new SqlCommand(insertQuery, connection);
+                insertCommand.Parameters.AddWithValue("@PatientID", patientId);
+                insertCommand.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
+                insertCommand.Parameters.AddWithValue("@Percentageofdiagnosis", percentage);
+
+                await insertCommand.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при сохранении данных о диагнозе: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         /// <param name="connection">Открытое подключение к базе данных</param>
         /// <param name="diagnosisId">ID диагноза</param>
         private async Task LoadDoctorsForDiagnosisAsync(SqlConnection connection, int diagnosisId)

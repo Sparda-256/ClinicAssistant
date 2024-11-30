@@ -1,4 +1,5 @@
-﻿<Window x:Class="ClinicAssistant.SymptomChooseWindow"
+﻿<!-- SymptomChooseWindow.xaml -->
+<Window x:Class="ClinicAssistant.SymptomChooseWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Выбор симптомов" Height="450" Width="450"
@@ -7,27 +8,20 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Заголовок -->
             <RowDefinition Height="Auto"/>
-            <!-- Поле поиска -->
             <RowDefinition Height="*"/>
-            <!-- Список симптомов -->
             <RowDefinition Height="Auto"/>
-            <!-- Кнопка -->
         </Grid.RowDefinitions>
 
-        <!-- Заголовок окна -->
         <TextBlock Text="Выберите симптомы" FontWeight="Bold" FontSize="20" Foreground="#333333"
                    HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-        <!-- Поле поиска -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
             <Label Content="Поиск:" VerticalAlignment="Center"/>
             <TextBox x:Name="SearchSymptomTextBox" Width="200" Margin="5,0,0,0"
                      TextChanged="SearchSymptomTextBox_TextChanged"/>
         </StackPanel>
 
-        <!-- Список симптомов -->
         <ListBox x:Name="SymptomsListBox" Grid.Row="2" SelectionMode="Multiple"
                  Margin="0,0,0,20" BorderBrush="#B0B0B0"
                  BorderThickness="1" Background="White" Padding="10"
@@ -39,7 +33,6 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!-- Кнопка продолжить -->
         <Button Content="Продолжить" Width="120" Height="40" Margin="0,10,0,0"
                 Background="#4CAF50" Foreground="White" FontWeight="Bold"
                 FontSize="14" Click="SubmitButton_Click"
