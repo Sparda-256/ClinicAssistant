@@ -1,15 +1,43 @@
 ﻿<Window x:Class="ClinicAssistant.DiagnosisDoctorLinkWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Добавить связь диагноза к врачу" Height="250" Width="400">
-    <Grid>
-        <StackPanel Margin="10">
-            <Label Content="Выберите диагноз:" />
-            <ComboBox Name="DiagnosisComboBox" Width="300" />
-            <Label Content="Выберите врача:" Margin="0,10,0,0" />
-            <ComboBox Name="DoctorComboBox" Width="300" />
-            <Button Content="Сохранить" Width="100" Margin="0,20,0,0"
-                    HorizontalAlignment="Left" Click="SaveDiagnosisDoctorLink_Click" />
+        Title="Добавить связь диагноза к врачу" 
+        Height="400" Width="400"
+        Background="#F9F9F9" Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Text="Добавить связь диагноза к врачу" 
+                   FontWeight="Bold" 
+                   FontSize="18" 
+                   Foreground="#333333" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,0,0,20"/>
+
+        <!-- Основное содержимое -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" Width="300">
+            <TextBlock Text="Выберите диагноз:" FontSize="14" Foreground="#555555"/>
+            <ComboBox Name="DiagnosisComboBox" Margin="0,5,0,15" Padding="8"
+                      BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
+
+            <TextBlock Text="Выберите врача:" FontSize="14" Foreground="#555555" Margin="0,10,0,5"/>
+            <ComboBox Name="DoctorComboBox" Margin="0,5,0,15" Padding="8"
+                      BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
+
+            <Button Content="Сохранить" Width="120" Height="40" 
+                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                    Click="SaveDiagnosisDoctorLink_Click" HorizontalAlignment="Center" Margin="0,20,0,0"/>
         </StackPanel>
+
+        <!-- Футер -->
+        <TextBlock Grid.Row="2" Text="© 2024 Клиника" 
+                   FontSize="12" Foreground="#888888" 
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"/>
     </Grid>
 </Window>
