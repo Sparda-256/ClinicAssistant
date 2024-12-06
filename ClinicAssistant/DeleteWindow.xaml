@@ -4,7 +4,6 @@
         Title="Удаление данных" Height="600" Width="800">
     <Grid>
         <TabControl>
-            <!-- Удаление Симптомов -->
             <TabItem Header="Удалить Симптом">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
@@ -32,7 +31,6 @@
                 </DockPanel>
             </TabItem>
 
-            <!-- Удаление Наводящих Вопросов -->
             <TabItem Header="Удалить Наводящий Вопрос">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
@@ -60,7 +58,6 @@
                 </DockPanel>
             </TabItem>
 
-            <!-- Удаление Ответов -->
             <TabItem Header="Удалить Ответ">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
@@ -89,7 +86,6 @@
                 </DockPanel>
             </TabItem>
 
-            <!-- Удаление Диагнозов -->
             <TabItem Header="Удалить Диагноз">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
@@ -117,7 +113,6 @@
                 </DockPanel>
             </TabItem>
 
-            <!-- Удаление Врачей -->
             <TabItem Header="Удалить Врача">
                 <DockPanel Margin="10">
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">

@@ -1,5 +1,4 @@
-﻿<!-- FollowUpQuestionsWindow.xaml -->
-<Window x:Class="ClinicAssistant.FollowUpQuestionsWindow"
+﻿<Window x:Class="ClinicAssistant.FollowUpQuestionsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Наводящие вопросы" Height="500" Width="600"
@@ -8,14 +7,12 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- CollectionViewSource для группировки вопросов по SymptomName -->
         <CollectionViewSource x:Key="GroupedQuestions" Source="{Binding Questions}">
             <CollectionViewSource.GroupDescriptions>
                 <PropertyGroupDescription PropertyName="SymptomName"/>
             </CollectionViewSource.GroupDescriptions>
         </CollectionViewSource>
 
-        <!-- Стиль для заголовка группы -->
         <Style TargetType="GroupItem">
             <Setter Property="Template">
                 <Setter.Value>
@@ -42,7 +39,6 @@
         <TextBlock Text="Ответьте на вопросы" FontWeight="Bold" FontSize="24" Foreground="#333333"
                    HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-        <!-- ListView без внешнего ScrollViewer -->
         <ListView x:Name="QuestionsListView" 
                   ItemsSource="{Binding Source={StaticResource GroupedQuestions}}" 
                   SelectionMode="Single"
