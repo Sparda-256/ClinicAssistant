@@ -442,6 +442,14 @@ namespace ClinicAssistant
                         cmd.ExecuteNonQuery();
                     }
 
+                    // Удаление из PatientDiagnoses
+                    string deletePatientDiagnoses = "DELETE FROM PatientDiagnoses WHERE DiagnosisID = @DiagnosisID";
+                    using (SqlCommand cmd = new SqlCommand(deletePatientDiagnoses, conn, transaction))
+                    {
+                        cmd.Parameters.AddWithValue("@DiagnosisID", diagnosisID);
+                        cmd.ExecuteNonQuery();
+                    }
+
                     // Удаление самого диагноза
                     string deleteDiagnosis = "DELETE FROM Diagnoses WHERE DiagnosisID = @DiagnosisID";
                     using (SqlCommand cmd = new SqlCommand(deleteDiagnosis, conn, transaction))
