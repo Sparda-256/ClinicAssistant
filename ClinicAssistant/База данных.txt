@@ -75,7 +75,7 @@ CREATE TABLE PatientAnswers (
     PatientID INT,
     AnswerID INT,
     FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
-    FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID),
+    FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID)
 );
 
 -- Таблица для хранения диагнозов пациентов
