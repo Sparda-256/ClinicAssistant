@@ -1,6 +1,6 @@
-CREATE DATABASE PomoshnikPoliclinikiShmidta
+CREATE DATABASE PomoshnikPolicliniki
 
-USE PomoshnikPoliclinikiShmidta
+USE PomoshnikPolicliniki
 
 -- Создание таблицы для пациентов
 CREATE TABLE Patients (
