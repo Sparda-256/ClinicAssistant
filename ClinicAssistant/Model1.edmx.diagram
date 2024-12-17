@@ -4,19 +4,15 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="fdf03e44172a4ad88d1d06616ffcae35" Name="Diagram1">
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.Answer" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.Diagnosis" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.Doctor" Width="1.5" PointX="5.25" PointY="1.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.FollowUpQuestion" Width="1.5" PointX="7.5" PointY="3.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.Patient" Width="1.5" PointX="3" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="PomoshnikPoliclinikiModel.Symptom" Width="1.5" PointX="5.25" PointY="4" IsExpanded="true" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.FK__Answers__Questio__3F466844" ManuallyRouted="false" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.FK__FollowUpQ__Sympt__3C69FB99" ManuallyRouted="false" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.AnswerDiagnoses" ManuallyRouted="false" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.DoctorDiagnoses" ManuallyRouted="false" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.PatientAnswers" ManuallyRouted="false" />
-        <AssociationConnector Association="PomoshnikPoliclinikiModel.PatientSymptoms" ManuallyRouted="false" />
+      <Diagram DiagramId="ae46f05bc1674a7d9123bf05ac7e6765" Name="Diagram1">
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.Answer" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.Diagnosis" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.Doctor" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.FollowUpQuestion" Width="1.5" PointX="3" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.Patient" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="PomoshnikPolicliniki4Model.Symptom" Width="1.5" PointX="0.75" PointY="1.125" IsExpanded="true" />
+        <AssociationConnector Association="PomoshnikPolicliniki4Model.FK__Answers__Questio__403A8C7D" ManuallyRouted="false" />
+        <AssociationConnector Association="PomoshnikPolicliniki4Model.FK__FollowUpQ__Sympt__3D5E1FD2" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

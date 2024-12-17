@@ -13,10 +13,10 @@ namespace ClinicAssistant
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class PomoshnikPoliclinikiEntities : DbContext
+    public partial class PomoshnikPolicliniki4Entities : DbContext
     {
-        public PomoshnikPoliclinikiEntities()
-            : base("name=PomoshnikPoliclinikiEntities")
+        public PomoshnikPolicliniki4Entities()
+            : base("name=PomoshnikPolicliniki4Entities")
         {
         }
     

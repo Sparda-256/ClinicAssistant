@@ -18,7 +18,6 @@ namespace ClinicAssistant
         public Symptom()
         {
             this.FollowUpQuestions = new HashSet<FollowUpQuestion>();
-            this.Patients = new HashSet<Patient>();
         }
     
         public int SymptomID { get; set; }
@@ -26,7 +25,5 @@ namespace ClinicAssistant
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FollowUpQuestion> FollowUpQuestions { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Patient> Patients { get; set; }
     }
 }

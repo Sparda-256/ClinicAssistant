@@ -14,19 +14,7 @@ namespace ClinicAssistant
     
     public partial class Diagnosis
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Diagnosis()
-        {
-            this.Answers = new HashSet<Answer>();
-            this.Doctors = new HashSet<Doctor>();
-        }
-    
         public int DiagnosisID { get; set; }
         public string DiagnosisName { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Answer> Answers { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Doctor> Doctors { get; set; }
     }
 }

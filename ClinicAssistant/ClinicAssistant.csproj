@@ -206,6 +206,8 @@
   <ItemGroup>
     <Resource Include="База данных.txt" />
     <Resource Include="28-280979_medical-logo-medical-cross-symbol-png %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Model1.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Model1.edmx</DependentUpon>

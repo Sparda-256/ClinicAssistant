@@ -36,7 +36,7 @@ namespace ClinicAssistant
                 return;
             }
 
-            string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
+            string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
             int patientId;
 
             using (SqlConnection connection = new SqlConnection(connectionString))

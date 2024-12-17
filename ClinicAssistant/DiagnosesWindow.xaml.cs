@@ -11,7 +11,7 @@ namespace ClinicAssistant
     public partial class DiagnosesWindow : Window
     {
         private readonly int patientId;
-        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
+        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
         public ObservableCollection<DiagnosisData> Diagnoses { get; set; } = new ObservableCollection<DiagnosisData>();
 

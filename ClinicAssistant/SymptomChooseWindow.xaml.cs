@@ -15,7 +15,7 @@ namespace ClinicAssistant
     public partial class SymptomChooseWindow : Window
     {
         private readonly int patientId;
-        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
+        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
         // Коллекция для хранения симптомов
         private ObservableCollection<Symptom> allSymptoms = new ObservableCollection<Symptom>();

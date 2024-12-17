@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,8 +10,9 @@ namespace ClinicAssistant
 {
     public partial class AddWindow : Window
     {
-        private string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;user id=is;password=1;encrypt=False;";
-
+        private string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private List<dynamic> symptoms = new List<dynamic>();
+        private List<dynamic> questions = new List<dynamic>();
         public AddWindow()
         {
             InitializeComponent();
@@ -19,48 +22,54 @@ namespace ClinicAssistant
 
         private void LoadSymptoms()
         {
+            symptoms.Clear();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("SELECT SymptomID, SymptomName FROM Symptoms", connection);
-                    SqlDataAdapter adapter = new SqlDataAdapter(command);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT SymptomID, SymptomName FROM Symptoms", connection);
+                SqlDataReader reader = command.ExecuteReader();
 
-                    SymptomComboBox.ItemsSource = dataTable.DefaultView;
-                    SymptomComboBox.DisplayMemberPath = "SymptomName";
-                    SymptomComboBox.SelectedValuePath = "SymptomID";
-                }
-                catch (Exception ex)
+                while (reader.Read())
                 {
-                    MessageBox.Show("Ошибка загрузки симптомов: " + ex.Message);
+                    symptoms.Add(new
+                    {
+                        SymptomID = reader["SymptomID"],
+                        SymptomName = reader["SymptomName"].ToString()
+                    });
                 }
+                reader.Close();
             }
+            SymptomListView.ItemsSource = symptoms;
         }
 
         private void LoadQuestions()
         {
+            questions.Clear();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("SELECT QuestionID, Question FROM FollowUpQuestions", connection);
-                    SqlDataAdapter adapter = new SqlDataAdapter(command);
-                    DataTable dataTable = new DataTable();
-                    adapter.Fill(dataTable);
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT QuestionID, Question FROM FollowUpQuestions", connection);
+                SqlDataReader reader = command.ExecuteReader();
 
-                    QuestionComboBox.ItemsSource = dataTable.DefaultView;
-                    QuestionComboBox.DisplayMemberPath = "Question";
-                    QuestionComboBox.SelectedValuePath = "QuestionID";
-                }
-                catch (Exception ex)
+                while (reader.Read())
                 {
-                    MessageBox.Show("Ошибка загрузки вопросов: " + ex.Message);
+                    questions.Add(new
+                    {
+                        QuestionID = reader["QuestionID"],
+                        QuestionText = reader["Question"].ToString()
+                    });
                 }
+                reader.Close();
             }
+            QuestionListView.ItemsSource = questions;
+        }
+
+        private void SymptomSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string query = SymptomSearchBox.Text.ToLower();
+            SymptomListView.ItemsSource = symptoms
+                .Where(s => s.SymptomName.ToLower().Contains(query))
+                .ToList();
         }
 
         private void AddSymptom_Click(object sender, RoutedEventArgs e)
@@ -95,76 +104,60 @@ namespace ClinicAssistant
 
         private void AddFollowUpQuestion_Click(object sender, RoutedEventArgs e)
         {
-            if (SymptomComboBox.SelectedValue == null)
-            {
-                MessageBox.Show("Выберите симптом.");
-                return;
-            }
-
-            int symptomID = (int)SymptomComboBox.SelectedValue;
+            var selectedSymptom = SymptomListView.SelectedItem;
             string questionText = QuestionTextTextBox.Text.Trim();
 
-            if (string.IsNullOrEmpty(questionText))
+            if (selectedSymptom == null || string.IsNullOrEmpty(questionText))
             {
-                MessageBox.Show("Введите текст наводящего вопроса.");
+                MessageBox.Show("Выберите симптом и введите текст наводящего вопроса.");
                 return;
             }
+
+            int symptomID = (int)selectedSymptom.GetType().GetProperty("SymptomID").GetValue(selectedSymptom);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("INSERT INTO FollowUpQuestions (SymptomID, Question) VALUES (@SymptomID, @Question)", connection);
-                    command.Parameters.AddWithValue("@SymptomID", symptomID);
-                    command.Parameters.AddWithValue("@Question", questionText);
-                    command.ExecuteNonQuery();
-
-                    MessageBox.Show("Наводящий вопрос успешно добавлен.");
-                    QuestionTextTextBox.Clear();
-                    LoadQuestions();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка добавления наводящего вопроса: " + ex.Message);
-                }
+                connection.Open();
+                SqlCommand command = new SqlCommand("INSERT INTO FollowUpQuestions (SymptomID, Question) VALUES (@SymptomID, @Question)", connection);
+                command.Parameters.AddWithValue("@SymptomID", symptomID);
+                command.Parameters.AddWithValue("@Question", questionText);
+                command.ExecuteNonQuery();
+                MessageBox.Show("Наводящий вопрос успешно добавлен.");
+                QuestionTextTextBox.Clear();
+                LoadQuestions();
             }
+        }
+
+        private void QuestionSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string query = QuestionSearchBox.Text.ToLower();
+            QuestionListView.ItemsSource = questions
+                .Where(q => q.QuestionText.ToLower().Contains(query))
+                .ToList();
         }
 
         private void AddAnswer_Click(object sender, RoutedEventArgs e)
         {
-            if (QuestionComboBox.SelectedValue == null)
-            {
-                MessageBox.Show("Выберите вопрос.");
-                return;
-            }
-
-            int questionID = (int)QuestionComboBox.SelectedValue;
+            var selectedQuestion = QuestionListView.SelectedItem;
             string answerText = AnswerTextTextBox.Text.Trim();
 
-            if (string.IsNullOrEmpty(answerText))
+            if (selectedQuestion == null || string.IsNullOrEmpty(answerText))
             {
-                MessageBox.Show("Введите текст ответа.");
+                MessageBox.Show("Выберите наводящий вопрос и введите текст ответа.");
                 return;
             }
+
+            int questionID = (int)selectedQuestion.GetType().GetProperty("QuestionID").GetValue(selectedQuestion);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand("INSERT INTO Answers (QuestionID, Answer) VALUES (@QuestionID, @Answer)", connection);
-                    command.Parameters.AddWithValue("@QuestionID", questionID);
-                    command.Parameters.AddWithValue("@Answer", answerText);
-                    command.ExecuteNonQuery();
-
-                    MessageBox.Show("Ответ успешно добавлен.");
-                    AnswerTextTextBox.Clear();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка добавления ответа: " + ex.Message);
-                }
+                connection.Open();
+                SqlCommand command = new SqlCommand("INSERT INTO Answers (QuestionID, Answer) VALUES (@QuestionID, @Answer)", connection);
+                command.Parameters.AddWithValue("@QuestionID", questionID);
+                command.Parameters.AddWithValue("@Answer", answerText);
+                command.ExecuteNonQuery();
+                MessageBox.Show("Ответ успешно добавлен.");
+                AnswerTextTextBox.Clear();
             }
         }
 
