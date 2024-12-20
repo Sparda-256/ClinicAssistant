@@ -42,6 +42,7 @@
         <Button Content="Выйти" Width="70" Height="25"
             Background="#FF5252" Foreground="White" FontWeight="Bold"
             FontSize="12" Click="EndSessionButton_Click"
-            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="466,25,0,0" Grid.Row="2"/>
+            HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,25,30,0" Grid.Row="2"/>
     </Grid>
 </Window>
