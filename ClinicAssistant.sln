@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicAssistant", "ClinicAssistant\ClinicAssistant.csproj", "{0EA5F58E-48C4-447A-93C3-AC672AF49D54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{7EAE533B-BC5C-48BA-90AC-174AAD742D40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0EA5F58E-48C4-447A-93C3-AC672AF49D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EA5F58E-48C4-447A-93C3-AC672AF49D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EA5F58E-48C4-447A-93C3-AC672AF49D54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EAE533B-BC5C-48BA-90AC-174AAD742D40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EAE533B-BC5C-48BA-90AC-174AAD742D40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EAE533B-BC5C-48BA-90AC-174AAD742D40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EAE533B-BC5C-48BA-90AC-174AAD742D40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
