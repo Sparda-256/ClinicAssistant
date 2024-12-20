@@ -21,7 +21,7 @@
                             <Expander.Header>
                                 <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="#333333" />
                             </Expander.Header>
-                            <ItemsPresenter />
+                            <ItemsPresenter HorizontalAlignment="Stretch" />
                         </Expander>
                     </ControlTemplate>
                 </Setter.Value>
@@ -58,14 +58,14 @@
             </ListView.GroupStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Margin="0,0,0,15">
+                    <StackPanel Margin="0,0,0,15" HorizontalAlignment="Stretch">
                         <TextBlock Text="{Binding QuestionText}" FontSize="16" FontWeight="SemiBold" 
                                    Foreground="#333333" TextWrapping="Wrap"/>
                         <ComboBox ItemsSource="{Binding Answers}" 
                                   SelectedValuePath="AnswerID" 
                                   DisplayMemberPath="AnswerText"
                                   SelectedValue="{Binding SelectedAnswerID, Mode=TwoWay}"
-                                  Width="400" Margin="0,5,0,0"/>
+                                  HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
