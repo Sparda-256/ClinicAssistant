@@ -36,32 +36,19 @@ namespace ClinicAssistant
                 return;
             }
 
-            string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
-            int patientId;
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                try
-                {
-                    connection.Open();
-                    string query = "INSERT INTO Patients (FullName, Age, Gender) OUTPUT INSERTED.PatientID VALUES (@FullName, @Age, @Gender)";
-                    SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@FullName", fullName);
-                    command.Parameters.AddWithValue("@Age", age);
-                    command.Parameters.AddWithValue("@Gender", gender);
+                DatabaseFacade dbFacade = new DatabaseFacade();
+                int patientId = dbFacade.AddPatient(fullName, age, gender);
 
-                    patientId = (int)command.ExecuteScalar();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при подключении к базе данных: " + ex.Message);
-                    return;
-                }
+                SymptomChooseWindow symptomWindow = new SymptomChooseWindow(patientId);
+                symptomWindow.Show();
+                this.Close();
             }
-
-            SymptomChooseWindow symptomWindow = new SymptomChooseWindow(patientId);
-            symptomWindow.Show();
-            this.Close();
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при работе с базой данных: " + ex.Message);
+            }
         }
 
     }

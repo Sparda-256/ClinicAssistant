@@ -11,6 +11,7 @@ namespace ClinicAssistant
     public partial class DiagnosesWindow : Window
     {
         private readonly int patientId;
+        private readonly DatabaseFacade dbFacade = new DatabaseFacade();
         private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
         public ObservableCollection<DiagnosisData> Diagnoses { get; set; } = new ObservableCollection<DiagnosisData>();
@@ -27,66 +28,38 @@ namespace ClinicAssistant
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                var diagnoses = await dbFacade.GetDiagnosesAsync(patientId);
+
+                if (diagnoses.Count == 0)
                 {
-                    await connection.OpenAsync();
-
-                    string diagnosesQuery = @"
-                SELECT d.DiagnosisID, d.DiagnosisName, COUNT(pa.AnswerID) AS AnswerMatches
-                FROM PatientAnswers pa
-                JOIN AnswerDiagnoses ad ON pa.AnswerID = ad.AnswerID
-                JOIN Diagnoses d ON ad.DiagnosisID = d.DiagnosisID
-                WHERE pa.PatientID = @PatientID
-                GROUP BY d.DiagnosisID, d.DiagnosisName
-                ORDER BY AnswerMatches DESC";
-
-                    SqlCommand diagnosesCommand = new SqlCommand(diagnosesQuery, connection);
-                    diagnosesCommand.Parameters.AddWithValue("@PatientID", patientId);
-
-                    List<DiagnosisData> diagnoses = new List<DiagnosisData>();
-                    int totalMatches = 0;
-
-                    using (SqlDataReader reader = await diagnosesCommand.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            int diagnosisId = reader.GetInt32(reader.GetOrdinal("DiagnosisID"));
-                            string diagnosisName = reader.GetString(reader.GetOrdinal("DiagnosisName"));
-                            int answerMatches = reader.GetInt32(reader.GetOrdinal("AnswerMatches"));
-
-                            totalMatches += answerMatches;
-                            diagnoses.Add(new DiagnosisData
-                            {
-                                DiagnosisID = diagnosisId,
-                                Name = diagnosisName,
-                                Matches = answerMatches
-                            });
-                        }
-                    }
-
-                    // Clear previous records for the patient in PatientDiagnoses
-                    await ClearExistingDiagnosesAsync(connection, patientId);
-
-                    foreach (var diagnosis in diagnoses)
-                    {
-                        double percentage = totalMatches > 0 ? (double)diagnosis.Matches / totalMatches * 100 : 0;
-                        diagnosis.Percentage = percentage;
-                        Diagnoses.Add(diagnosis);
-
-                        // Save diagnosis to PatientDiagnoses table
-                        await SaveDiagnosisToDatabaseAsync(connection, patientId, diagnosis.DiagnosisID, (int)Math.Round(percentage));
-                    }
-
-                    if (diagnoses.Count > 0)
-                    {
-                        int topDiagnosisId = diagnoses[0].DiagnosisID;
-                        await LoadDoctorsForDiagnosisAsync(connection, topDiagnosisId);
-                    }
-                    else
-                    {
-                        DoctorInfoTextBlock.Text = "Не найдено диагнозов.";
-                    }
+                    DoctorInfoTextBlock.Text = "Не найдено диагнозов.";
+                    return;
                 }
+
+                int totalMatches = 0;
+                foreach (var diagnosis in diagnoses)
+                {
+                    totalMatches += diagnosis.Matches;
+                }
+
+                await dbFacade.ClearExistingDiagnosesAsync(patientId);
+
+                foreach (var (diagnosisId, name, matches) in diagnoses)
+                {
+                    double percentage = totalMatches > 0 ? (double)matches / totalMatches * 100 : 0;
+                    Diagnoses.Add(new DiagnosisData
+                    {
+                        DiagnosisID = diagnosisId,
+                        Name = name,
+                        Matches = matches,
+                        Percentage = percentage
+                    });
+
+                    await dbFacade.SaveDiagnosisAsync(patientId, diagnosisId, (int)Math.Round(percentage));
+                }
+
+                var topDiagnosisId = diagnoses[0].DiagnosisID;
+                await LoadDoctorsForDiagnosisAsync(topDiagnosisId);
             }
             catch (Exception ex)
             {
@@ -94,83 +67,19 @@ namespace ClinicAssistant
             }
         }
 
-        private async Task ClearExistingDiagnosesAsync(SqlConnection connection, int patientId)
+        private async Task LoadDoctorsForDiagnosisAsync(int diagnosisId)
         {
             try
             {
-                string deleteQuery = "DELETE FROM PatientDiagnoses WHERE PatientID = @PatientID";
-                SqlCommand deleteCommand = new SqlCommand(deleteQuery, connection);
-                deleteCommand.Parameters.AddWithValue("@PatientID", patientId);
-                await deleteCommand.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при очистке старых данных о диагнозах: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+                var doctors = await dbFacade.GetDoctorsForDiagnosisAsync(diagnosisId);
 
-        private async Task SaveDiagnosisToDatabaseAsync(SqlConnection connection, int patientId, int diagnosisId, int percentage)
-        {
-            try
-            {
-                string insertQuery = @"
-            INSERT INTO PatientDiagnoses (PatientID, DiagnosisID, Percentageofdiagnosis)
-            VALUES (@PatientID, @DiagnosisID, @Percentageofdiagnosis)";
-
-                SqlCommand insertCommand = new SqlCommand(insertQuery, connection);
-                insertCommand.Parameters.AddWithValue("@PatientID", patientId);
-                insertCommand.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
-                insertCommand.Parameters.AddWithValue("@Percentageofdiagnosis", percentage);
-
-                await insertCommand.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при сохранении данных о диагнозе: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <param name="connection">Открытое подключение к базе данных</param>
-        /// <param name="diagnosisId">ID диагноза</param>
-        private async Task LoadDoctorsForDiagnosisAsync(SqlConnection connection, int diagnosisId)
-        {
-            try
-            {
-                string doctorQuery = @"
-                    SELECT doc.FullName, doc.OfficeNumber
-                    FROM DoctorDiagnoses dd
-                    JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
-                    WHERE dd.DiagnosisID = @DiagnosisID";
-
-                SqlCommand doctorCommand = new SqlCommand(doctorQuery, connection);
-                doctorCommand.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
-
-                List<DoctorData> doctors = new List<DoctorData>();
-
-                using (SqlDataReader doctorReader = await doctorCommand.ExecuteReaderAsync())
-                {
-                    while (await doctorReader.ReadAsync())
-                    {
-                        string doctorName = doctorReader.GetString(doctorReader.GetOrdinal("FullName"));
-                        string officeNumber = doctorReader.GetString(doctorReader.GetOrdinal("OfficeNumber"));
-
-                        doctors.Add(new DoctorData
-                        {
-                            FullName = doctorName,
-                            OfficeNumber = officeNumber
-                        });
-                    }
-                }
-
-                if (doctors.Count > 0)
-                {
-                    string doctorInfo = string.Join("\n", doctors.ConvertAll(d => $"ФИО: {d.FullName}, Кабинет: {d.OfficeNumber}"));
-                    DoctorInfoTextBlock.Text = doctorInfo;
-                }
-                else
+                if (doctors.Count == 0)
                 {
                     DoctorInfoTextBlock.Text = "Врачи не назначены для данного диагноза.";
+                    return;
                 }
+
+                DoctorInfoTextBlock.Text = string.Join("\n", doctors.ConvertAll(d => $"ФИО: {d.FullName}, Кабинет: {d.OfficeNumber}"));
             }
             catch (Exception ex)
             {
@@ -178,12 +87,10 @@ namespace ClinicAssistant
             }
         }
 
-
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
-
 
         public class DiagnosisData
         {
@@ -192,7 +99,6 @@ namespace ClinicAssistant
             public int Matches { get; set; }
             public double Percentage { get; set; }
         }
-
 
         public class DoctorData
         {

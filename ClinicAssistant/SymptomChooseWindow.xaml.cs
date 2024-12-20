@@ -1,5 +1,4 @@
-﻿// SymptomChooseWindow.xaml.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -65,46 +64,21 @@ namespace ClinicAssistant
         {
             try
             {
+                DatabaseFacade dbFacade = new DatabaseFacade();
+                var symptoms = dbFacade.GetSymptoms(search);
+
                 allSymptoms.Clear();
-
-                using (SqlConnection connection = new SqlConnection(connectionString))
+                foreach (var (id, name) in symptoms)
                 {
-                    connection.Open();
-                    string query = "SELECT SymptomID, SymptomName FROM Symptoms";
-
-                    if (!string.IsNullOrWhiteSpace(search))
+                    Symptom symptom = new Symptom
                     {
-                        query += " WHERE SymptomName LIKE @search";
-                    }
+                        SymptomID = id,
+                        SymptomName = name,
+                        IsSelected = selectedSymptomIds.Contains(id)
+                    };
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        if (!string.IsNullOrWhiteSpace(search))
-                        {
-                            command.Parameters.AddWithValue("@search", "%" + search + "%");
-                        }
-
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                int id = reader.GetInt32(reader.GetOrdinal("SymptomID"));
-                                string name = reader.GetString(reader.GetOrdinal("SymptomName"));
-
-                                Symptom symptom = new Symptom
-                                {
-                                    SymptomID = id,
-                                    SymptomName = name,
-                                    IsSelected = selectedSymptomIds.Contains(id)
-                                };
-
-                                // Подписка на изменение свойства
-                                symptom.PropertyChanged += Symptom_PropertyChanged;
-
-                                allSymptoms.Add(symptom);
-                            }
-                        }
-                    }
+                    symptom.PropertyChanged += Symptom_PropertyChanged;
+                    allSymptoms.Add(symptom);
                 }
             }
             catch (Exception ex)

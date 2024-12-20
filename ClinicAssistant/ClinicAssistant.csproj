@@ -76,6 +76,7 @@
     <Compile Include="AnswerDiagnosisLinkWindow.xaml.cs">
       <DependentUpon>AnswerDiagnosisLinkWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseFacade.cs" />
     <Compile Include="DeleteWindow.xaml.cs">
       <DependentUpon>DeleteWindow.xaml</DependentUpon>
     </Compile>
