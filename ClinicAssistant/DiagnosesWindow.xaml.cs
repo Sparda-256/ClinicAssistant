@@ -105,5 +105,13 @@ namespace ClinicAssistant
             public string FullName { get; set; }
             public string OfficeNumber { get; set; }
         }
+
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            this.Close();
+        }
     }
 }

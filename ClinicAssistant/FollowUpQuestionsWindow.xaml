@@ -76,5 +76,9 @@
                 FontSize="16" Click="SubmitButton_Click"
                 HorizontalAlignment="Center" Grid.Row="2" 
                 Cursor="Hand"/>
+        <Button Content="Выйти" Width="70" Height="25"
+            Background="#FF5252" Foreground="White" FontWeight="Bold"
+            FontSize="12" Click="EndSessionButton_Click"
+            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="466,35,0,0" Grid.Row="2"/>
     </Grid>
 </Window>

@@ -148,6 +148,7 @@ namespace ClinicAssistant
 
             return questions;
         }
+
         public List<AnswerModel> GetAnswersByQuestion(int questionId)
         {
             var answers = new List<AnswerModel>();
@@ -176,6 +177,7 @@ namespace ClinicAssistant
 
             return answers;
         }
+
         public void SavePatientAnswers(int patientId, IEnumerable<int> answerIds)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -279,6 +281,7 @@ namespace ClinicAssistant
                 }
             }
         }
+
         public async Task<List<(string FullName, string OfficeNumber)>> GetDoctorsForDiagnosisAsync(int diagnosisId)
         {
             var doctors = new List<(string FullName, string OfficeNumber)>();
@@ -311,6 +314,7 @@ namespace ClinicAssistant
 
             return doctors;
         }
+
         public DataTable GetDataTable(string query, Dictionary<string, object> parameters = null)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))

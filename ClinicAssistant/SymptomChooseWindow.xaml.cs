@@ -177,5 +177,13 @@ namespace ClinicAssistant
             }
             base.OnClosed(e);
         }
+
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            this.Close();
+        }
     }
 }

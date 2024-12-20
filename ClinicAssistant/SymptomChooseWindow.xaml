@@ -1,7 +1,7 @@
 ﻿<Window x:Class="ClinicAssistant.SymptomChooseWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Выбор симптомов" Height="450" Width="450"
+        Title="Выбор симптомов" Height="450" Width="470"
         Background="#F9F9F9" Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png">
 
     <Grid Margin="20">
@@ -36,5 +36,9 @@
                 Background="#4CAF50" Foreground="White" FontWeight="Bold"
                 FontSize="14" Click="SubmitButton_Click"
                 HorizontalAlignment="Center" Grid.Row="3"/>
+        <Button Content="Выйти" Width="70" Height="25"
+            Background="#FF5252" Foreground="White" FontWeight="Bold"
+            FontSize="12" Click="EndSessionButton_Click"
+            HorizontalAlignment="Left" VerticalAlignment="Top" Margin="339,25,0,0" Grid.Row="3"/>
     </Grid>
 </Window>

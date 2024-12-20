@@ -160,5 +160,13 @@ namespace ClinicAssistant
             public static readonly DependencyProperty SelectedAnswerIDProperty =
                 DependencyProperty.Register("SelectedAnswerID", typeof(int?), typeof(QuestionViewModel), new PropertyMetadata(null));
         }
+
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
+            this.Close();
+        }
     }
 }
