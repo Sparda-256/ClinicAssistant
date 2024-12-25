@@ -5,6 +5,10 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Linq;
 
 namespace ClinicAssistant
 {
@@ -94,6 +98,61 @@ namespace ClinicAssistant
         {
             this.Close();
         }
+
+        private void ExportTicketButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Ограничиваем количество диагнозов (максимум 4 для читаемости)
+                var diagnosisDisplayList = Diagnoses
+                    .Take(4)
+                    .Select(d => $"{d.Name} - {d.Percentage:F2}%")
+                    .ToList();
+                DiagnosesList.ItemsSource = diagnosisDisplayList;
+
+                // Динамическое позиционирование врача и кабинета
+                double diagnosesHeight = 110 + (diagnosisDisplayList.Count * 25); // 25px на диагноз
+
+                TicketDoctor.SetValue(Canvas.TopProperty, diagnosesHeight + 30);
+                TicketOffice.SetValue(Canvas.TopProperty, diagnosesHeight + 70);
+
+                // Заполнение данных врача и кабинета
+                var doctorDetails = DoctorInfoTextBlock.Text.Split('\n').FirstOrDefault()?.Split(',');
+                TicketDoctor.Text = $"Врач: {doctorDetails?.ElementAtOrDefault(0)?.Trim() ?? "Не назначен"}";
+                TicketOffice.Text = $"{doctorDetails?.ElementAtOrDefault(1)?.Trim() ?? "Не указан"}";
+
+                // Убедимся, что Canvas правильно отрисован
+                TicketCanvas.Visibility = Visibility.Visible;
+                TicketCanvas.UpdateLayout();
+                TicketCanvas.Measure(new System.Windows.Size(TicketCanvas.Width, TicketCanvas.Height));
+                TicketCanvas.Arrange(new Rect(new System.Windows.Size(TicketCanvas.Width, TicketCanvas.Height)));
+
+                // Создание изображения
+                RenderTargetBitmap renderBitmap = new RenderTargetBitmap(
+                    (int)TicketCanvas.Width, (int)TicketCanvas.Height, 96d, 96d, PixelFormats.Pbgra32);
+                renderBitmap.Render(TicketCanvas);
+
+                // Сохранение в файл
+                string filePath = $"Талон_{patientId}.png";
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                    encoder.Save(fileStream);
+                }
+
+                // Возвращаем Canvas в скрытое состояние
+                TicketCanvas.Visibility = Visibility.Collapsed;
+
+                MessageBox.Show($"Талон успешно сохранён: {filePath}", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении талона: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
 
         public class DiagnosisData
         {

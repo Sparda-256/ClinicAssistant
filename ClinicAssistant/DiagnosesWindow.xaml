@@ -34,15 +34,47 @@
             </StackPanel>
         </StackPanel>
 
-        <Button Content="Закрыть" Width="120" Height="40" Margin="0,10,0,0"
-                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                FontSize="14" Click="CloseButton_Click"
+        <Button Content="Получить талон" Width="150" Height="40"
+                Background="#2196F3" Foreground="White" FontWeight="Bold"
+                FontSize="14" Click="ExportTicketButton_Click"
                 HorizontalAlignment="Center" Grid.Row="2" 
-                Cursor="Hand"/>
-        <Button Content="Выйти" Width="70" Height="25"
-            Background="#FF5252" Foreground="White" FontWeight="Bold"
-            FontSize="12" Click="EndSessionButton_Click"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Margin="0,25,30,0" Grid.Row="2"/>
+                Cursor="Hand" Margin="0,5,0,5"/>
+        <Button Content="Выйти" Width="82"
+                Background="#FF5252" Foreground="White" FontWeight="Bold"
+                FontSize="12" Click="EndSessionButton_Click"
+                HorizontalAlignment="Right"
+                Margin="0,25,17,0" Grid.Row="2"/>
+
+        <Canvas x:Name="TicketCanvas" Visibility="Collapsed" Width="500" Height="400" Background="#F9F9F9">
+            <!-- Заголовок талона -->
+            <TextBlock Text="Талон на приём к врачу" FontWeight="Bold" FontSize="24" 
+               Canvas.Left="0" Canvas.Top="20" Width="500"
+               TextAlignment="Center" Foreground="#333333"/>
+
+            <!-- Информация о диагнозах -->
+            <TextBlock Text="Диагнозы:" FontWeight="Bold" FontSize="20"
+               Canvas.Left="0" Canvas.Top="70" Width="500"
+               TextAlignment="Center" Foreground="#555555"/>
+
+            <ItemsControl x:Name="DiagnosesList" Canvas.Left="50" Canvas.Top="110" Width="400">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="16" Margin="0,5"
+                           TextAlignment="Center"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Информация о враче и кабинете -->
+            <TextBlock x:Name="TicketDoctor" Text="Врач: Иван Смирнов" 
+               FontSize="18" FontWeight="SemiBold"
+               Canvas.Left="0" Width="500"
+               TextAlignment="Center"/>
+
+            <TextBlock x:Name="TicketOffice" Text="Кабинет: №12"
+               FontSize="18" FontWeight="SemiBold"
+               Canvas.Left="0" Width="500"
+               TextAlignment="Center"/>
+        </Canvas>
     </Grid>
 </Window>
