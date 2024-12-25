@@ -9,7 +9,9 @@ namespace ClinicAssistant
 {
     public class DatabaseFacade
     {
-        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki;persist security info=True;user id=is;password=1;MultipleActiveResultSets=True;App=EntityFramework";
+
+        //private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki4;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
         public int AddPatient(string fullName, int age, string gender)
         {
