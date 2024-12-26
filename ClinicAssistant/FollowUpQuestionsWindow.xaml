@@ -4,7 +4,8 @@
         Title="Наводящие вопросы" Height="500" Width="600"
         Background="#F9F9F9" 
         Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
     <Window.Resources>
         <CollectionViewSource x:Key="GroupedQuestions" Source="{Binding Questions}">
@@ -29,57 +30,57 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Viewbox Stretch="Uniform">
+        <Grid Width="600" Height="500" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBlock Text="Ответьте на вопросы" FontWeight="Bold" FontSize="24" Foreground="#333333"
-                   HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <TextBlock Text="Ответьте на вопросы" FontWeight="Bold" FontSize="24" Foreground="#333333"
+                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-        <ListView x:Name="QuestionsListView" 
-                  ItemsSource="{Binding Source={StaticResource GroupedQuestions}}" 
-                  SelectionMode="Single"
-                  Grid.Row="1"
-                  BorderBrush="#B0B0B0"
-                  BorderThickness="1"
-                  Background="White"
-                  Padding="10">
-            <ListView.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="#333333" Margin="0,10,0,5"/>
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </ListView.GroupStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="0,0,0,15" HorizontalAlignment="Stretch">
-                        <TextBlock Text="{Binding QuestionText}" FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="#333333" TextWrapping="Wrap"/>
-                        <ComboBox ItemsSource="{Binding Answers}" 
-                                  SelectedValuePath="AnswerID" 
-                                  DisplayMemberPath="AnswerText"
-                                  SelectedValue="{Binding SelectedAnswerID, Mode=TwoWay}"
-                                  HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            <ListView x:Name="QuestionsListView" 
+                      ItemsSource="{Binding Source={StaticResource GroupedQuestions}}" 
+                      SelectionMode="Single"
+                      Grid.Row="1"
+                      BorderBrush="#B0B0B0"
+                      BorderThickness="1"
+                      Background="White"
+                      Padding="10">
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="18" Foreground="#333333" Margin="0,10,0,5"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,15" HorizontalAlignment="Stretch">
+                            <TextBlock Text="{Binding QuestionText}" FontSize="16" FontWeight="SemiBold" 
+                                       Foreground="#333333" TextWrapping="Wrap"/>
+                            <ComboBox ItemsSource="{Binding Answers}" 
+                                      SelectedValuePath="AnswerID" 
+                                      DisplayMemberPath="AnswerText"
+                                      SelectedValue="{Binding SelectedAnswerID, Mode=TwoWay}"
+                                      HorizontalAlignment="Stretch" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
 
-        <Button Content="Продолжить" Width="150" Height="50" Margin="0,10,0,0"
-                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                FontSize="16" Click="SubmitButton_Click"
-                HorizontalAlignment="Center" Grid.Row="2" 
-                Cursor="Hand"/>
-        <Button Content="Выйти" Width="70" Height="25"
-            Background="#FF5252" Foreground="White" FontWeight="Bold"
-            FontSize="12" Click="EndSessionButton_Click"
-            HorizontalAlignment="Right" VerticalAlignment="Top"
-            Margin="0,35,30,0" Grid.Row="2"/>
-    </Grid>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            <Button Content="Выйти"
+                        Background="#FF5252" Foreground="White" FontWeight="Bold"
+                        FontSize="12" Click="EndSessionButton_Click" Cursor="Hand" Margin="520,29,10,0" Grid.Row="2"/>
+            <Button Content="Продолжить"
+                        Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                        FontSize="16" Click="SubmitButton_Click"
+                        Cursor="Hand" Margin="220,1,230,-2" Grid.Row="2"/>
+        </Grid>
+    </Viewbox>
 </Window>

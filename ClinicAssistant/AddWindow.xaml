@@ -2,112 +2,118 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Добавление данных" Height="600" Width="700"
-        Background="#F9F9F9" Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png">
+        Background="#F9F9F9" 
+        Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Viewbox Stretch="Uniform">
+        <Grid Width="700" Height="600" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBlock Text="Добавление данных" FontWeight="Bold" FontSize="20" Foreground="#333333" 
-                   HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <TextBlock Text="Добавление данных" 
+                       FontWeight="Bold" 
+                       FontSize="20" 
+                       Foreground="#333333" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,20"/>
 
-        <TabControl Grid.Row="1" Background="White" BorderBrush="#B0B0B0" BorderThickness="1">
-            <TabItem Header="Симптом">
-                <Grid Margin="10">
-                    <StackPanel HorizontalAlignment="Center" Width="400">
-                        <TextBlock Text="Название симптома:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="SymptomNameTextBox" Margin="0,5,0,15" Padding="8" 
-                                 BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
-                        <Button Content="Добавить" Width="120" Height="40" 
-                                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                Click="AddSymptom_Click" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
+            <TabControl Grid.Row="1" Background="White" BorderBrush="#B0B0B0" BorderThickness="1">
+                <TabItem Header="Симптом">
+                    <Grid Margin="10">
+                        <StackPanel HorizontalAlignment="Center" Width="400">
+                            <TextBlock Text="Название симптома:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="SymptomNameTextBox" Margin="0,5,0,15" Padding="8"
+                                     BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
+                            <Button Content="Добавить" Width="120" Height="40" 
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                                    Click="AddSymptom_Click" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-            <TabItem Header="Наводящий вопрос">
-                <Grid Margin="10">
-                    <StackPanel HorizontalAlignment="Center" Width="400">
-                        <TextBlock Text="Поиск симптома:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="SymptomSearchBox" Height="30" Margin="0,5,0,5" 
-                                 TextChanged="SymptomSearchBox_TextChanged"/>
-                        <ListView Name="SymptomListView" Height="150" SelectionMode="Single" 
-                                  DisplayMemberPath="SymptomName" Margin="0,5,0,15"/>
+                <TabItem Header="Наводящий вопрос">
+                    <Grid Margin="10">
+                        <StackPanel HorizontalAlignment="Center" Width="400">
+                            <TextBlock Text="Поиск симптома:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="SymptomSearchBox" Height="30" Margin="0,5,0,5"
+                                     TextChanged="SymptomSearchBox_TextChanged"/>
+                            <ListView Name="SymptomListView" Height="150" SelectionMode="Single"
+                                      DisplayMemberPath="SymptomName" Margin="0,5,0,15"/>
 
-                        <TextBlock Text="Текст наводящего вопроса:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="QuestionTextTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1"/>
-                        <Button Content="Добавить" Width="120" Height="40" 
-                                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                Click="AddFollowUpQuestion_Click" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
+                            <TextBlock Text="Текст наводящего вопроса:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="QuestionTextTextBox" Margin="0,5,0,15" Padding="8"
+                                     BorderBrush="#B0B0B0" BorderThickness="1"/>
+                            <Button Content="Добавить" Width="120" Height="40"
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                                    Click="AddFollowUpQuestion_Click" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-            <TabItem Header="Ответ">
-                <Grid Margin="10">
-                    <StackPanel HorizontalAlignment="Center" Width="400">
-                        <TextBlock Text="Поиск наводящего вопроса:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="QuestionSearchBox" Height="30" Margin="0,5,0,5" 
-                                 TextChanged="QuestionSearchBox_TextChanged"/>
-                        <ListView Name="QuestionListView" Height="150" SelectionMode="Single" 
-                                  DisplayMemberPath="QuestionText" Margin="0,5,0,15"/>
+                <TabItem Header="Ответ">
+                    <Grid Margin="10">
+                        <StackPanel HorizontalAlignment="Center" Width="400">
+                            <TextBlock Text="Поиск наводящего вопроса:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="QuestionSearchBox" Height="30" Margin="0,5,0,5"
+                                     TextChanged="QuestionSearchBox_TextChanged"/>
+                            <ListView Name="QuestionListView" Height="150" SelectionMode="Single"
+                                      DisplayMemberPath="QuestionText" Margin="0,5,0,15"/>
 
-                        <TextBlock Text="Текст ответа:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="AnswerTextTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1"/>
-                        <Button Content="Добавить" Width="120" Height="40" 
-                                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                Click="AddAnswer_Click" HorizontalAlignment="Center"/>
-                        <Button Content="Добавить связь ответа к диагнозу" Width="250" Height="40"
-                                Background="#2196F3" Foreground="White" FontWeight="Bold"
-                                Click="OpenAnswerDiagnosisLinkWindow_Click" Margin="0,10,0,0" 
-                                HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
+                            <TextBlock Text="Текст ответа:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="AnswerTextTextBox" Margin="0,5,0,15" Padding="8"
+                                     BorderBrush="#B0B0B0" BorderThickness="1"/>
+                            <Button Content="Добавить" Width="120" Height="40"
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                                    Click="AddAnswer_Click" HorizontalAlignment="Center"/>
+                            <Button Content="Добавить связь ответа к диагнозу" Width="250" Height="40"
+                                    Background="#2196F3" Foreground="White" FontWeight="Bold"
+                                    Click="OpenAnswerDiagnosisLinkWindow_Click" Margin="0,10,0,0"
+                                    HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-            <TabItem Header="Диагноз">
-                <Grid Margin="10">
-                    <StackPanel HorizontalAlignment="Center" Width="400">
-                        <TextBlock Text="Название диагноза:" FontSize="14" Foreground="#555555"/>
-                        <TextBox Name="DiagnosisNameTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
-                        <Button Content="Добавить" Width="120" Height="40" 
-                                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                Click="AddDiagnosis_Click" HorizontalAlignment="Center"/>
-                        <Button Content="Добавить связь диагноза к врачу" Width="250" Height="40" 
-                                Background="#2196F3" Foreground="White" FontWeight="Bold"
-                                Click="OpenDiagnosisDoctorLinkWindow_Click" Margin="0,10,0,0" 
-                                HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
+                <TabItem Header="Диагноз">
+                    <Grid Margin="10">
+                        <StackPanel HorizontalAlignment="Center" Width="400">
+                            <TextBlock Text="Название диагноза:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="DiagnosisNameTextBox" Margin="0,5,0,15" Padding="8"
+                                     BorderBrush="#B0B0B0" BorderThickness="1"/>
+                            <Button Content="Добавить" Width="120" Height="40"
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                                    Click="AddDiagnosis_Click" HorizontalAlignment="Center"/>
+                            <Button Content="Добавить связь диагноза к врачу" Width="250" Height="40"
+                                    Background="#2196F3" Foreground="White" FontWeight="Bold"
+                                    Click="OpenDiagnosisDoctorLinkWindow_Click" Margin="0,10,0,0"
+                                    HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
 
-            <TabItem Header="Врач">
-                <Grid Margin="10">
-                    <StackPanel HorizontalAlignment="Center" Width="400">
-                        <TextBlock Text="ФИО:" FontSize="14" Foreground="#555555" Margin="0,10,0,5"/>
-                        <TextBox Name="DoctorFullNameTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
-                        <TextBlock Text="Специальность:" FontSize="14" Foreground="#555555" Margin="0,10,0,5"/>
-                        <TextBox Name="DoctorSpecialtyTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
-                        <TextBlock Text="Номер кабинета:" FontSize="14" Foreground="#555555" Margin="0,10,0,5"/>
-                        <TextBox Name="DoctorOfficeNumberTextBox" Margin="0,5,0,15" Padding="8"
-                                 BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
-                        <Button Content="Добавить" Width="120" Height="40" 
-                                Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                Click="AddDoctor_Click" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                <TabItem Header="Врач">
+                    <Grid Margin="10">
+                        <StackPanel HorizontalAlignment="Center" Width="400">
+                            <TextBlock Text="ФИО:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="DoctorFullNameTextBox" Margin="0,5,0,15" Padding="8"/>
+                            <TextBlock Text="Специальность:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="DoctorSpecialtyTextBox" Margin="0,5,0,15" Padding="8"/>
+                            <TextBlock Text="Номер кабинета:" FontSize="14" Foreground="#555555"/>
+                            <TextBox Name="DoctorOfficeNumberTextBox" Margin="0,5,0,15" Padding="8"/>
+                            <Button Content="Добавить" Width="120" Height="40"
+                                    Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                                    Click="AddDoctor_Click" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
 
-        <TextBlock Grid.Row="2" Text="© 2024 Клиника" FontSize="12" Foreground="#888888" 
-                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"/>
-    </Grid>
+            <TextBlock Grid.Row="2" Text="© 2024 Клиника" FontSize="12" Foreground="#888888"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"/>
+        </Grid>
+    </Viewbox>
 </Window>
