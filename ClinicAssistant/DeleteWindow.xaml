@@ -12,8 +12,12 @@
     <Viewbox Stretch="Uniform">
         <Grid Width="800" Height="600" Margin="20">
             <TabControl>
+
+                <!-- Вкладка «Симптом» -->
                 <TabItem Header="Удалить Симптом">
                     <DockPanel Margin="10">
+
+                        <!-- Панель с поиском и кнопкой массового удаления -->
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                             <Label Content="Поиск:" VerticalAlignment="Center" FontSize="14" Foreground="#555555"/>
                             <TextBox Name="SearchSymptomTextBox" Width="200" Margin="5,0,0,0" 
@@ -22,20 +26,33 @@
                                      BorderBrush="#B0B0B0" 
                                      BorderThickness="1" 
                                      Background="White"/>
+                            <!-- Кнопка для массового удаления симптомов -->
+                            <Button Content="Удалить выбранные" 
+                                    Margin="10,0,0,0"
+                                    Background="#F44336" 
+                                    Foreground="White" 
+                                    FontWeight="Bold"
+                                    Padding="5"
+                                    Click="DeleteSelectedSymptoms_Click"/>
                         </StackPanel>
+
+                        <!-- DataGrid с возможностью множественного выделения -->
                         <DataGrid Name="SymptomsDataGrid" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False" 
                                   IsReadOnly="True"
                                   BorderBrush="#B0B0B0" 
                                   BorderThickness="1" 
-                                  Background="White">
+                                  Background="White"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding SymptomID}" Width="Auto"/>
                                 <DataGridTextColumn Header="Название Симптома" Binding="{Binding SymptomName}" Width="*"/>
                                 <DataGridTemplateColumn Header="Действие" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
+                                            <!-- Кнопка одиночного удаления -->
                                             <Button Content="Удалить" 
                                                     Tag="{Binding SymptomID}" 
                                                     Click="DeleteSymptom_Click" 
@@ -51,8 +68,10 @@
                     </DockPanel>
                 </TabItem>
 
+                <!-- Вкладка «Наводящий Вопрос» -->
                 <TabItem Header="Удалить Наводящий Вопрос">
                     <DockPanel Margin="10">
+
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                             <Label Content="Поиск:" VerticalAlignment="Center" FontSize="14" Foreground="#555555"/>
                             <TextBox Name="SearchQuestionTextBox" Width="200" Margin="5,0,0,0" 
@@ -61,20 +80,32 @@
                                      BorderBrush="#B0B0B0" 
                                      BorderThickness="1" 
                                      Background="White"/>
+                            <!-- Кнопка для массового удаления вопросов -->
+                            <Button Content="Удалить выбранные" 
+                                    Margin="10,0,0,0"
+                                    Background="#F44336" 
+                                    Foreground="White" 
+                                    FontWeight="Bold"
+                                    Padding="5"
+                                    Click="DeleteSelectedQuestions_Click"/>
                         </StackPanel>
+
                         <DataGrid Name="QuestionsDataGrid" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False" 
                                   IsReadOnly="True"
                                   BorderBrush="#B0B0B0" 
                                   BorderThickness="1" 
-                                  Background="White">
+                                  Background="White"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding QuestionID}" Width="Auto"/>
                                 <DataGridTextColumn Header="Вопрос" Binding="{Binding Question}" Width="*"/>
                                 <DataGridTemplateColumn Header="Действие" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
+                                            <!-- Кнопка одиночного удаления -->
                                             <Button Content="Удалить" 
                                                     Tag="{Binding QuestionID}" 
                                                     Click="DeleteFollowUpQuestion_Click" 
@@ -90,8 +121,10 @@
                     </DockPanel>
                 </TabItem>
 
+                <!-- Вкладка «Ответ» -->
                 <TabItem Header="Удалить Ответ">
                     <DockPanel Margin="10">
+
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                             <Label Content="Поиск:" VerticalAlignment="Center" FontSize="14" Foreground="#555555"/>
                             <TextBox Name="SearchAnswerTextBox" Width="200" Margin="5,0,0,0" 
@@ -100,14 +133,25 @@
                                      BorderBrush="#B0B0B0" 
                                      BorderThickness="1" 
                                      Background="White"/>
+                            <!-- Кнопка для массового удаления ответов -->
+                            <Button Content="Удалить выбранные" 
+                                    Margin="10,0,0,0"
+                                    Background="#F44336" 
+                                    Foreground="White" 
+                                    FontWeight="Bold"
+                                    Padding="5"
+                                    Click="DeleteSelectedAnswers_Click"/>
                         </StackPanel>
+
                         <DataGrid Name="AnswersDataGrid" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False" 
                                   IsReadOnly="True"
                                   BorderBrush="#B0B0B0" 
                                   BorderThickness="1" 
-                                  Background="White">
+                                  Background="White"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding AnswerID}" Width="Auto"/>
                                 <DataGridTextColumn Header="Вопрос" Binding="{Binding Question}" Width="*"/>
@@ -115,6 +159,7 @@
                                 <DataGridTemplateColumn Header="Действие" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
+                                            <!-- Кнопка одиночного удаления -->
                                             <Button Content="Удалить" 
                                                     Tag="{Binding AnswerID}" 
                                                     Click="DeleteAnswer_Click" 
@@ -130,8 +175,10 @@
                     </DockPanel>
                 </TabItem>
 
+                <!-- Вкладка «Диагноз» -->
                 <TabItem Header="Удалить Диагноз">
                     <DockPanel Margin="10">
+
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                             <Label Content="Поиск:" VerticalAlignment="Center" FontSize="14" Foreground="#555555"/>
                             <TextBox Name="SearchDiagnosisTextBox" Width="200" Margin="5,0,0,0" 
@@ -140,20 +187,32 @@
                                      BorderBrush="#B0B0B0" 
                                      BorderThickness="1" 
                                      Background="White"/>
+                            <!-- Кнопка для массового удаления диагнозов -->
+                            <Button Content="Удалить выбранные" 
+                                    Margin="10,0,0,0"
+                                    Background="#F44336" 
+                                    Foreground="White" 
+                                    FontWeight="Bold"
+                                    Padding="5"
+                                    Click="DeleteSelectedDiagnoses_Click"/>
                         </StackPanel>
+
                         <DataGrid Name="DiagnosesDataGrid" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False" 
                                   IsReadOnly="True"
                                   BorderBrush="#B0B0B0" 
                                   BorderThickness="1" 
-                                  Background="White">
+                                  Background="White"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding DiagnosisID}" Width="Auto"/>
                                 <DataGridTextColumn Header="Название Диагноза" Binding="{Binding DiagnosisName}" Width="*"/>
                                 <DataGridTemplateColumn Header="Действие" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
+                                            <!-- Кнопка одиночного удаления -->
                                             <Button Content="Удалить" 
                                                     Tag="{Binding DiagnosisID}" 
                                                     Click="DeleteDiagnosis_Click" 
@@ -169,8 +228,10 @@
                     </DockPanel>
                 </TabItem>
 
+                <!-- Вкладка «Врач» -->
                 <TabItem Header="Удалить Врача">
                     <DockPanel Margin="10">
+
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                             <Label Content="Поиск:" VerticalAlignment="Center" FontSize="14" Foreground="#555555"/>
                             <TextBox Name="SearchDoctorTextBox" Width="200" Margin="5,0,0,0" 
@@ -179,20 +240,32 @@
                                      BorderBrush="#B0B0B0" 
                                      BorderThickness="1" 
                                      Background="White"/>
+                            <!-- Кнопка для массового удаления врачей -->
+                            <Button Content="Удалить выбранные" 
+                                    Margin="10,0,0,0"
+                                    Background="#F44336" 
+                                    Foreground="White" 
+                                    FontWeight="Bold"
+                                    Padding="5"
+                                    Click="DeleteSelectedDoctors_Click"/>
                         </StackPanel>
+
                         <DataGrid Name="DoctorsDataGrid" 
                                   AutoGenerateColumns="False" 
                                   CanUserAddRows="False" 
                                   IsReadOnly="True"
                                   BorderBrush="#B0B0B0" 
                                   BorderThickness="1" 
-                                  Background="White">
+                                  Background="White"
+                                  SelectionMode="Extended"
+                                  SelectionUnit="FullRow">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding DoctorID}" Width="Auto"/>
                                 <DataGridTextColumn Header="ФИО Врача" Binding="{Binding FullName}" Width="*"/>
-                                <DataGridTemplateColumn Header="Действие" Width="100">
+                                <DataGridTemplateColumn Header="Удаление" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
+                                            <!-- Кнопка одиночного удаления -->
                                             <Button Content="Удалить" 
                                                     Tag="{Binding DoctorID}" 
                                                     Click="DeleteDoctor_Click" 
@@ -207,6 +280,7 @@
                         </DataGrid>
                     </DockPanel>
                 </TabItem>
+
             </TabControl>
         </Grid>
     </Viewbox>

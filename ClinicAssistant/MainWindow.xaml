@@ -1,14 +1,13 @@
 ﻿<Window x:Class="ClinicAssistant.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Помощник посетителей поликлиники" Height="450" Width="450"
+        Title="Помощник для посетителей поликлиники" Height="450" Width="450"
         Background="#F9F9F9"
         Icon="/28-280979_medical-logo-medical-cross-symbol-png (1).png"
         SizeToContent="Manual"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
 
-    <!-- Viewbox for scalability -->
     <Viewbox Stretch="Uniform">
         <Grid Width="450" Height="450" Margin="20">
             <Grid.RowDefinitions>
