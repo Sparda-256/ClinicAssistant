@@ -86,7 +86,7 @@ namespace ClinicAssistant
             try
             {
                 // Словарь для подсчёта количества диагнозов, которые лечит каждый врач
-                var doctorDiagnosisCount = new Dictionary<int, (string FullName, string OfficeNumber, int Count)>();
+                var doctorDiagnosisCount = new Dictionary<int, (string FullName, string OfficeNumber, string Specialty, int Count)>();
 
                 foreach (var diagnosisId in topDiagnosisIds)
                 {
@@ -99,6 +99,7 @@ namespace ClinicAssistant
                             doctorDiagnosisCount[doctor.DoctorID] = (
                                 doctor.FullName,
                                 doctor.OfficeNumber,
+                                doctor.Specialty,
                                 doctorDiagnosisCount[doctor.DoctorID].Count + 1
                             );
                         }
@@ -107,6 +108,7 @@ namespace ClinicAssistant
                             doctorDiagnosisCount[doctor.DoctorID] = (
                                 doctor.FullName,
                                 doctor.OfficeNumber,
+                                doctor.Specialty,
                                 1
                             );
                         }
@@ -124,9 +126,17 @@ namespace ClinicAssistant
                 }
                 else if (doctorDiagnosisCount.Values.All(d => d.Count == 1))
                 {
-                    // Если все врачи лечат только по одному диагнозу, выбираем врача с ID 1
-                    var fallbackDoctor = await dbFacade.GetDoctorByIdAsync(1);
-                    DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.FullName}, Кабинет: {fallbackDoctor.OfficeNumber}";
+                    // Если все врачи лечат только по одному диагнозу, выбираем врача с Specialty = "Терапевт"
+                    var fallbackDoctor = await dbFacade.GetDoctorBySpecialtyAsync("Терапевт");
+                    if (fallbackDoctor.HasValue)
+                    {
+                        DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.Value.FullName}, Кабинет: {fallbackDoctor.Value.OfficeNumber}";
+                    }
+                    else
+                    {
+                        // Если терапевт не найден, выбираем первого попавшегося врача
+                        DoctorInfoTextBlock.Text = $"ФИО: {bestDoctor.Value.FullName}, Кабинет: {bestDoctor.Value.OfficeNumber}";
+                    }
                 }
                 else
                 {
@@ -139,6 +149,7 @@ namespace ClinicAssistant
                 MessageBox.Show("Ошибка при загрузке информации о враче: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

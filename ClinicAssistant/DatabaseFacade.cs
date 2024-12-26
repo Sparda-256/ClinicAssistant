@@ -284,16 +284,16 @@ namespace ClinicAssistant
             }
         }
 
-        public async Task<List<(int DoctorID, string FullName, string OfficeNumber)>> GetDoctorsForDiagnosisAsync(int diagnosisId)
+        public async Task<List<(int DoctorID, string FullName, string OfficeNumber, string Specialty)>> GetDoctorsForDiagnosisAsync(int diagnosisId)
         {
-            var doctors = new List<(int DoctorID, string FullName, string OfficeNumber)>();
+            var doctors = new List<(int DoctorID, string FullName, string OfficeNumber, string Specialty)>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
                 string query = @"
-                    SELECT doc.DoctorID, doc.FullName, doc.OfficeNumber
+                    SELECT doc.DoctorID, doc.FullName, doc.OfficeNumber, doc.Specialty
                     FROM DoctorDiagnoses dd
                     JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
                     WHERE dd.DiagnosisID = @DiagnosisID";
@@ -309,7 +309,8 @@ namespace ClinicAssistant
                             doctors.Add((
                                 reader.GetInt32(0),
                                 reader.GetString(1),
-                                reader.GetString(2)
+                                reader.GetString(2),
+                                reader.GetString(3)
                             ));
                         }
                     }
@@ -361,16 +362,17 @@ namespace ClinicAssistant
                 }
             }
         }
-        public async Task<(string FullName, string OfficeNumber)> GetDoctorByIdAsync(int doctorId)
+
+        public async Task<(string FullName, string OfficeNumber)?> GetDoctorBySpecialtyAsync(string specialty)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                string query = "SELECT FullName, OfficeNumber FROM Doctors WHERE DoctorID = @DoctorID";
+                string query = "SELECT TOP 1 FullName, OfficeNumber FROM Doctors WHERE Specialty = @Specialty";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@DoctorID", doctorId);
+                    command.Parameters.AddWithValue("@Specialty", specialty);
 
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
@@ -384,8 +386,7 @@ namespace ClinicAssistant
                     }
                 }
             }
-
-            return ("Не назначен", "Не указан");
+            return null;
         }
     }
 }
