@@ -284,19 +284,20 @@ namespace ClinicAssistant
             }
         }
 
-        public async Task<List<(string FullName, string OfficeNumber)>> GetDoctorsForDiagnosisAsync(int diagnosisId)
+        public async Task<List<(int DoctorID, string FullName, string OfficeNumber)>> GetDoctorsForDiagnosisAsync(int diagnosisId)
         {
-            var doctors = new List<(string FullName, string OfficeNumber)>();
+            var doctors = new List<(int DoctorID, string FullName, string OfficeNumber)>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
                 string query = @"
-                SELECT doc.FullName, doc.OfficeNumber
-                FROM DoctorDiagnoses dd
-                JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
-                WHERE dd.DiagnosisID = @DiagnosisID";
+                    SELECT doc.DoctorID, doc.FullName, doc.OfficeNumber
+                    FROM DoctorDiagnoses dd
+                    JOIN Doctors doc ON dd.DoctorID = doc.DoctorID
+                    WHERE dd.DiagnosisID = @DiagnosisID";
+
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
@@ -306,8 +307,9 @@ namespace ClinicAssistant
                         while (await reader.ReadAsync())
                         {
                             doctors.Add((
-                                reader.GetString(0),
-                                reader.GetString(1)
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetString(2)
                             ));
                         }
                     }
@@ -316,6 +318,7 @@ namespace ClinicAssistant
 
             return doctors;
         }
+
 
         public DataTable GetDataTable(string query, Dictionary<string, object> parameters = null)
         {
@@ -357,6 +360,32 @@ namespace ClinicAssistant
                     }
                 }
             }
+        }
+        public async Task<(string FullName, string OfficeNumber)> GetDoctorByIdAsync(int doctorId)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = "SELECT FullName, OfficeNumber FROM Doctors WHERE DoctorID = @DoctorID";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@DoctorID", doctorId);
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return (
+                                reader.GetString(0),
+                                reader.GetString(1)
+                            );
+                        }
+                    }
+                }
+            }
+
+            return ("Не назначен", "Не указан");
         }
     }
 }

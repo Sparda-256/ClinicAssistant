@@ -65,8 +65,15 @@ namespace ClinicAssistant
                     await dbFacade.SaveDiagnosisAsync(patientId, diagnosisId, (int)Math.Round(percentage));
                 }
 
-                var topDiagnosisId = diagnoses[0].DiagnosisID;
-                await LoadDoctorsForDiagnosisAsync(topDiagnosisId);
+                var topDiagnoses = diagnoses
+                  .GroupBy(d => d.Matches)
+                  .OrderByDescending(g => g.Key)
+                  .First()
+                  .Select(d => d.DiagnosisID)
+                  .ToList();
+
+                await LoadDoctorsForDiagnosisAsync(topDiagnoses);
+
             }
             catch (Exception ex)
             {
@@ -74,25 +81,65 @@ namespace ClinicAssistant
             }
         }
 
-        private async Task LoadDoctorsForDiagnosisAsync(int diagnosisId)
+        private async Task LoadDoctorsForDiagnosisAsync(List<int> topDiagnosisIds)
         {
             try
             {
-                var doctors = await dbFacade.GetDoctorsForDiagnosisAsync(diagnosisId);
+                // Словарь для подсчёта количества диагнозов, которые лечит каждый врач
+                var doctorDiagnosisCount = new Dictionary<int, (string FullName, string OfficeNumber, int Count)>();
 
-                if (doctors.Count == 0)
+                foreach (var diagnosisId in topDiagnosisIds)
                 {
-                    DoctorInfoTextBlock.Text = "Врачи не назначены для данного диагноза.";
-                    return;
+                    var doctors = await dbFacade.GetDoctorsForDiagnosisAsync(diagnosisId);
+
+                    foreach (var doctor in doctors)
+                    {
+                        if (doctorDiagnosisCount.ContainsKey(doctor.DoctorID))
+                        {
+                            doctorDiagnosisCount[doctor.DoctorID] = (
+                                doctor.FullName,
+                                doctor.OfficeNumber,
+                                doctorDiagnosisCount[doctor.DoctorID].Count + 1
+                            );
+                        }
+                        else
+                        {
+                            doctorDiagnosisCount[doctor.DoctorID] = (
+                                doctor.FullName,
+                                doctor.OfficeNumber,
+                                1
+                            );
+                        }
+                    }
                 }
 
-                DoctorInfoTextBlock.Text = string.Join("\n", doctors.ConvertAll(d => $"ФИО: {d.FullName}, Кабинет: {d.OfficeNumber}"));
+                // Определяем врача, который лечит больше всего "победивших" диагнозов
+                var bestDoctor = doctorDiagnosisCount
+                    .OrderByDescending(d => d.Value.Count)
+                    .FirstOrDefault();
+
+                if (doctorDiagnosisCount.Count == 0)
+                {
+                    DoctorInfoTextBlock.Text = "Врачи не назначены для данных диагнозов.";
+                }
+                else if (doctorDiagnosisCount.Values.All(d => d.Count == 1))
+                {
+                    // Если все врачи лечат только по одному диагнозу, выбираем врача с ID 1
+                    var fallbackDoctor = await dbFacade.GetDoctorByIdAsync(1);
+                    DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.FullName}, Кабинет: {fallbackDoctor.OfficeNumber}";
+                }
+                else
+                {
+                    // Выводим врача, который лечит больше всего диагнозов
+                    DoctorInfoTextBlock.Text = $"ФИО: {bestDoctor.Value.FullName}, Кабинет: {bestDoctor.Value.OfficeNumber}";
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при загрузке информации о враче: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -109,7 +156,7 @@ namespace ClinicAssistant
                     .ToList();
                 DiagnosesList.ItemsSource = diagnosisDisplayList;
 
-                double diagnosesHeight = 110 + (diagnosisDisplayList.Count * 25); // 25px на диагноз
+                double diagnosesHeight = 110 + (diagnosisDisplayList.Count * 25);
 
                 TicketDoctor.SetValue(Canvas.TopProperty, diagnosesHeight + 30);
                 TicketOffice.SetValue(Canvas.TopProperty, diagnosesHeight + 70);
@@ -127,7 +174,14 @@ namespace ClinicAssistant
                     (int)TicketCanvas.Width, (int)TicketCanvas.Height, 96d, 96d, PixelFormats.Pbgra32);
                 renderBitmap.Render(TicketCanvas);
 
-                string filePath = $"Талон_{patientId}.png";
+                string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string projectDirectory = Path.Combine(exeDirectory, "..", "..");
+                string talonyDirectory = Path.Combine(projectDirectory, "Талоны");
+
+                Directory.CreateDirectory(talonyDirectory);
+
+                string filePath = Path.Combine(talonyDirectory, $"Талон_{patientId}.png");
+
                 using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     PngBitmapEncoder encoder = new PngBitmapEncoder();
@@ -144,8 +198,6 @@ namespace ClinicAssistant
                 MessageBox.Show($"Ошибка при сохранении талона: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
 
         public class DiagnosisData
         {
