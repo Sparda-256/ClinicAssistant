@@ -239,5 +239,9 @@ namespace ClinicAssistant
             linkWindow.ShowDialog();
         }
 
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

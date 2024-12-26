@@ -55,6 +55,9 @@
             <Button Content="Сохранить" 
                         Background="#4CAF50" Foreground="White" FontWeight="Bold"
                         Click="SaveDiagnosisDoctorLink_Click" Margin="285,15,285,21" Grid.Row="3"/>
+            <Button Content="Выйти"
+                Background="#FF5252" Foreground="White" FontWeight="Bold"
+                FontSize="12" Click="EndSessionButton_Click" Margin="598,22,10,21" Grid.Row="3"/>
         </Grid>
     </Viewbox>
 </Window>

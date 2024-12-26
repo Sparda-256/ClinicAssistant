@@ -996,5 +996,10 @@ namespace ClinicAssistant
         }
 
         #endregion
+
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -114,5 +114,10 @@ namespace ClinicAssistant
                 MessageBox.Show("Связь добавлена успешно!");
             }
         }
+
+        private void EndSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

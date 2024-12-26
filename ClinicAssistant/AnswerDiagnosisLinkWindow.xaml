@@ -54,6 +54,9 @@
                        FontSize="12" Foreground="#888888" 
                        HorizontalAlignment="Center" VerticalAlignment="Bottom" 
                        Margin="0,60,0,0"/>
+            <Button Content="Выйти"
+                Background="#FF5252" Foreground="White" FontWeight="Bold"
+                FontSize="12" Click="EndSessionButton_Click" Margin="598,27,10,17" Grid.Row="3"/>
         </Grid>
     </Viewbox>
 </Window>

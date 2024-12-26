@@ -282,6 +282,9 @@
                 </TabItem>
 
             </TabControl>
+            <Button Content="Выйти"
+                Background="#FF5252" Foreground="White" FontWeight="Bold"
+                FontSize="12" Click="EndSessionButton_Click" Margin="698,33,10,535"/>
         </Grid>
     </Viewbox>
 </Window>
