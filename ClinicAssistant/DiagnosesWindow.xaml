@@ -36,16 +36,7 @@
                 </StackPanel>
             </StackPanel>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                <Button Content="Получить талон" Width="150" Height="40"
-                        Background="#2196F3" Foreground="White" FontWeight="Bold"
-                        FontSize="14" Click="ExportTicketButton_Click"
-                        Cursor="Hand" Margin="0,0,10,0"/>
-                <Button Content="Выйти" Width="82" Height="40"
-                        Background="#FF5252" Foreground="White" FontWeight="Bold"
-                        FontSize="12" Click="EndSessionButton_Click"
-                        Cursor="Hand"/>
-            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0"/>
 
             <Canvas x:Name="TicketCanvas" Visibility="Collapsed" Width="500" Height="400" Background="#F9F9F9">
                 <TextBlock Text="Талон на приём к врачу" FontWeight="Bold" FontSize="24" 
@@ -74,6 +65,14 @@
                            Canvas.Left="0" Canvas.Top="280" Width="500"
                            TextAlignment="Center"/>
             </Canvas>
+            <Button Content="Выйти"
+                        Background="#FF5252" Foreground="White" FontWeight="Bold"
+                        FontSize="12" Click="EndSessionButton_Click"
+                        Cursor="Hand" Margin="509,15,10,10" Grid.Row="2"/>
+            <Button Content="Получить талон"
+                        Background="#2196F3" Foreground="White" FontWeight="Bold"
+                        FontSize="14" Click="ExportTicketButton_Click"
+                        Cursor="Hand" Margin="220,447,220,8" Grid.RowSpan="2" Grid.Row="1"/>
         </Grid>
     </Viewbox>
 </Window>

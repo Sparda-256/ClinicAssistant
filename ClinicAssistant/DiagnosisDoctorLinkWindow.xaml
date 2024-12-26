@@ -46,16 +46,15 @@
                           BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,10">
-                <Button Content="Сохранить" Width="120" Height="40" 
-                        Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                        Click="SaveDiagnosisDoctorLink_Click"/>
-            </StackPanel>
+            <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,10"/>
 
             <TextBlock Grid.Row="3" Text="© 2024 Клиника" 
                        FontSize="12" Foreground="#888888" 
                        HorizontalAlignment="Center" VerticalAlignment="Bottom"
                        Margin="0,60,0,0"/>
+            <Button Content="Сохранить" 
+                        Background="#4CAF50" Foreground="White" FontWeight="Bold"
+                        Click="SaveDiagnosisDoctorLink_Click" Margin="285,15,285,21" Grid.Row="3"/>
         </Grid>
     </Viewbox>
 </Window>
