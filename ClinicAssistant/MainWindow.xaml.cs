@@ -14,21 +14,33 @@ namespace ClinicAssistant
 
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            string fullName = FullNameTextBox.Text;
+            string fullName = FullNameTextBox.Text.Trim();
+
             if (!int.TryParse(AgeTextBox.Text, out int age))
             {
                 MessageBox.Show("Пожалуйста, введите корректный возраст.");
                 return;
             }
-            string gender = (GenderComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-
-            if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(gender))
+            if (age < 18 || age > 100)
             {
-                MessageBox.Show("Пожалуйста, заполните все поля.");
+                MessageBox.Show("Возраст может быть в диапазоне от 18 до 100 лет.");
                 return;
             }
 
-            if (fullName == "Админ Админович Админов" && age == 333 && gender == "Женский")
+            if (string.IsNullOrEmpty(fullName) || !fullName.Contains(" "))
+            {
+                MessageBox.Show("Пожалуйста, введите корректное ФИО.");
+                return;
+            }
+
+            string gender = (GenderComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            if (string.IsNullOrEmpty(gender))
+            {
+                MessageBox.Show("Пожалуйста, выберите пол.");
+                return;
+            }
+
+            if (fullName == "Админ Админович Админов" && age == 33 && gender == "Женский")
             {
                 AdminWindow adminWindow = new AdminWindow();
                 adminWindow.Show();
@@ -50,6 +62,5 @@ namespace ClinicAssistant
                 MessageBox.Show("Ошибка при работе с базой данных: " + ex.Message);
             }
         }
-
     }
 }

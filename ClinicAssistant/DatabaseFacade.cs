@@ -358,15 +358,5 @@ namespace ClinicAssistant
                 }
             }
         }
-
-        public async Task DeleteByIdAsync(string tableName, string columnName, int id, SqlConnection connection, SqlTransaction transaction)
-        {
-            string query = $"DELETE FROM {tableName} WHERE {columnName} = @Id";
-            using (SqlCommand command = new SqlCommand(query, connection, transaction))
-            {
-                command.Parameters.AddWithValue("@Id", id);
-                await command.ExecuteNonQueryAsync();
-            }
-        }
     }
 }
