@@ -33,7 +33,6 @@ namespace ClinicAssistant
             LoadSymptoms();
         }
 
-        // Класс для представления симптома
         public class Symptom : INotifyPropertyChanged
         {
             private bool isSelected;
@@ -62,7 +61,6 @@ namespace ClinicAssistant
             }
         }
 
-        // Загрузка симптомов из базы данных
         private void LoadSymptoms(string search = "")
         {
             try
@@ -90,7 +88,6 @@ namespace ClinicAssistant
             }
         }
 
-        // Обработка нажатия на кнопку "Продолжить"
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
             if (selectedSymptomIds.Count == 0)
@@ -99,7 +96,6 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Запись выбранных симптомов в таблицу PatientSymptoms
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
@@ -138,20 +134,17 @@ namespace ClinicAssistant
                 }
             }
 
-            // Открытие окна FollowUpQuestionsWindow
             FollowUpQuestionsWindow followUpWindow = new FollowUpQuestionsWindow(patientId);
             followUpWindow.Show();
             this.Close();
         }
 
-        // Обработка изменения текста в поле поиска
         private void SearchSymptomTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = SearchSymptomTextBox.Text.Trim();
             LoadSymptoms(searchText);
         }
 
-        // Обработка изменения свойства IsSelected у симптома
         private void Symptom_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "IsSelected")
@@ -171,7 +164,6 @@ namespace ClinicAssistant
             }
         }
 
-        // Отписка от событий при закрытии окна (опционально)
         protected override void OnClosed(EventArgs e)
         {
             foreach (var symptom in allSymptoms)

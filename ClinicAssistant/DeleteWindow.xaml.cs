@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,195 +13,254 @@ namespace ClinicAssistant
     /// </summary>
     public partial class DeleteWindow : Window
     {
-        // Строка подключения к базе данных
         //private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki8;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
-
-        private readonly string connectionString = "data source = 192.168.147.54; initial catalog = PomoshnikPolicliniki8; persist security info=True;user id =is; password=1;MultipleActiveResultSets=True;App=EntityFramework";
+        private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki8;persist security info=True;user id=is;password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
         public DeleteWindow()
         {
             InitializeComponent();
 
-            // Загрузка данных при инициализации окна
-            LoadSymptoms();
-            LoadFollowUpQuestions();
-            LoadAnswers();
-            LoadDiagnoses();
-            LoadDoctors();
+            // Загрузка данных при инициализации окна (запускаем асинхронно)
+            _ = LoadSymptomsAsync();
+            _ = LoadFollowUpQuestionsAsync();
+            _ = LoadAnswersAsync();
+            _ = LoadDiagnosesAsync();
+            _ = LoadDoctorsAsync();
         }
 
-        #region Загрузка данных в DataGrid
+        #region Загрузка данных в DataGrid (Асинхронные версии)
 
-        private void LoadSymptoms(string search = "")
+        private async Task LoadSymptomsAsync(string search = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = "SELECT SymptomID, SymptomName FROM Symptoms";
-                if (!string.IsNullOrWhiteSpace(search))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    query += " WHERE SymptomName LIKE @search";
-                }
+                    await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    string query = "SELECT SymptomID, SymptomName FROM Symptoms";
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        query += " WHERE SymptomName LIKE @search";
                     }
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    SymptomsDataGrid.ItemsSource = dt.DefaultView;
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        }
+
+                        DataTable dt = new DataTable();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            dt.Load(reader);
+                        }
+
+                        SymptomsDataGrid.ItemsSource = dt.DefaultView;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке симптомов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LoadFollowUpQuestions(string search = "")
+        private async Task LoadFollowUpQuestionsAsync(string search = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = @"SELECT fq.QuestionID, fq.Question, s.SymptomName 
-                                 FROM FollowUpQuestions fq
-                                 INNER JOIN Symptoms s ON fq.SymptomID = s.SymptomID";
-                if (!string.IsNullOrWhiteSpace(search))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    query += " WHERE fq.Question LIKE @search";
-                }
+                    await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    string query = @"SELECT fq.QuestionID, fq.Question, s.SymptomName 
+                                     FROM FollowUpQuestions fq
+                                     INNER JOIN Symptoms s ON fq.SymptomID = s.SymptomID";
+
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        query += " WHERE fq.Question LIKE @search";
                     }
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    QuestionsDataGrid.ItemsSource = dt.DefaultView;
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        }
+
+                        DataTable dt = new DataTable();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            dt.Load(reader);
+                        }
+
+                        QuestionsDataGrid.ItemsSource = dt.DefaultView;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке вопросов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LoadAnswers(string search = "")
+        private async Task LoadAnswersAsync(string search = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = @"SELECT a.AnswerID, fq.Question, a.Answer 
-                                 FROM Answers a
-                                 INNER JOIN FollowUpQuestions fq ON a.QuestionID = fq.QuestionID";
-
-                if (!string.IsNullOrWhiteSpace(search))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    query += " WHERE a.Answer LIKE @search OR fq.Question LIKE @search";
-                }
+                    await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    string query = @"SELECT a.AnswerID, fq.Question, a.Answer 
+                                     FROM Answers a
+                                     INNER JOIN FollowUpQuestions fq ON a.QuestionID = fq.QuestionID";
+
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        query += " WHERE a.Answer LIKE @search OR fq.Question LIKE @search";
                     }
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    AnswersDataGrid.ItemsSource = dt.DefaultView;
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        }
+
+                        DataTable dt = new DataTable();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            dt.Load(reader);
+                        }
+
+                        AnswersDataGrid.ItemsSource = dt.DefaultView;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке ответов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LoadDiagnoses(string search = "")
+        private async Task LoadDiagnosesAsync(string search = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = "SELECT DiagnosisID, DiagnosisName FROM Diagnoses";
-                if (!string.IsNullOrWhiteSpace(search))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    query += " WHERE DiagnosisName LIKE @search";
-                }
+                    await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    string query = "SELECT DiagnosisID, DiagnosisName FROM Diagnoses";
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        query += " WHERE DiagnosisName LIKE @search";
                     }
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    DiagnosesDataGrid.ItemsSource = dt.DefaultView;
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        }
+
+                        DataTable dt = new DataTable();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            dt.Load(reader);
+                        }
+
+                        DiagnosesDataGrid.ItemsSource = dt.DefaultView;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке диагнозов: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LoadDoctors(string search = "")
+        private async Task LoadDoctorsAsync(string search = "")
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = "SELECT DoctorID, FullName FROM Doctors";
-                if (!string.IsNullOrWhiteSpace(search))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    query += " WHERE FullName LIKE @search";
-                }
+                    await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
+                    string query = "SELECT DoctorID, FullName FROM Doctors";
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        query += " WHERE FullName LIKE @search";
                     }
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-                    DoctorsDataGrid.ItemsSource = dt.DefaultView;
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                        }
+
+                        DataTable dt = new DataTable();
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            dt.Load(reader);
+                        }
+
+                        DoctorsDataGrid.ItemsSource = dt.DefaultView;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке врачей: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         #endregion
 
-        #region Обработчики событий поиска
+        #region Обработчики событий поиска (асинхронные вызовы методов загрузки)
 
-        private void SearchSymptomTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchSymptomTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            LoadSymptoms(SearchSymptomTextBox.Text.Trim());
+            await LoadSymptomsAsync(SearchSymptomTextBox.Text.Trim());
         }
 
-        private void SearchQuestionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchQuestionTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            LoadFollowUpQuestions(SearchQuestionTextBox.Text.Trim());
+            await LoadFollowUpQuestionsAsync(SearchQuestionTextBox.Text.Trim());
         }
 
-        private void SearchAnswerTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchAnswerTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            LoadAnswers(SearchAnswerTextBox.Text.Trim());
+            await LoadAnswersAsync(SearchAnswerTextBox.Text.Trim());
         }
 
-        private void SearchDiagnosisTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchDiagnosisTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            LoadDiagnoses(SearchDiagnosisTextBox.Text.Trim());
+            await LoadDiagnosesAsync(SearchDiagnosisTextBox.Text.Trim());
         }
 
-        private void SearchDoctorTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchDoctorTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            LoadDoctors(SearchDoctorTextBox.Text.Trim());
+            await LoadDoctorsAsync(SearchDoctorTextBox.Text.Trim());
         }
 
         #endregion
 
-        #region Обработчики событий одиночного удаления
+        #region Обработчики событий одиночного удаления (асинхронные)
 
         /// <summary>
         /// Удаление одного симптома
         /// </summary>
-        private void DeleteSymptom_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSymptom_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn == null) return;
+            // Вместо "is not" используем старый синтаксис:
+            if (!(sender is Button btn)) return;
 
             if (!int.TryParse(btn.Tag.ToString(), out int symptomID))
             {
@@ -208,26 +268,26 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Подтверждение
             if (MessageBox.Show("Вы уверены, что хотите удалить этот симптом и все связанные записи?",
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
-                    // Удаляем все данные, связанные с данным SymptomID
-                    DeleteSymptomByID(symptomID, conn, transaction);
+                    await DeleteSymptomByIDAsync(symptomID, conn, transaction);
 
                     transaction.Commit();
                     MessageBox.Show("Симптом и связанные записи успешно удалены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadSymptoms(SearchSymptomTextBox.Text.Trim());
+                    await LoadSymptomsAsync(SearchSymptomTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -240,10 +300,9 @@ namespace ClinicAssistant
         /// <summary>
         /// Удаление одного наводящего вопроса
         /// </summary>
-        private void DeleteFollowUpQuestion_Click(object sender, RoutedEventArgs e)
+        private async void DeleteFollowUpQuestion_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn == null) return;
+            if (!(sender is Button btn)) return;
 
             if (!int.TryParse(btn.Tag.ToString(), out int questionID))
             {
@@ -251,25 +310,26 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Подтверждение
             if (MessageBox.Show("Вы уверены, что хотите удалить этот вопрос и все связанные ответы?",
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
-                    DeleteQuestionByID(questionID, conn, transaction);
+                    await DeleteQuestionByIDAsync(questionID, conn, transaction);
 
                     transaction.Commit();
                     MessageBox.Show("Вопрос и связанные ответы успешно удалены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadFollowUpQuestions(SearchQuestionTextBox.Text.Trim());
+                    await LoadFollowUpQuestionsAsync(SearchQuestionTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -282,10 +342,9 @@ namespace ClinicAssistant
         /// <summary>
         /// Удаление одного ответа
         /// </summary>
-        private void DeleteAnswer_Click(object sender, RoutedEventArgs e)
+        private async void DeleteAnswer_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn == null) return;
+            if (!(sender is Button btn)) return;
 
             if (!int.TryParse(btn.Tag.ToString(), out int answerID))
             {
@@ -293,25 +352,26 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Подтверждение
             if (MessageBox.Show("Вы уверены, что хотите удалить этот ответ и все связанные записи?",
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
-                    DeleteAnswerByID(answerID, conn, transaction);
+                    await DeleteAnswerByIDAsync(answerID, conn, transaction);
 
                     transaction.Commit();
                     MessageBox.Show("Ответ и связанные записи успешно удалены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadAnswers(SearchAnswerTextBox.Text.Trim());
+                    await LoadAnswersAsync(SearchAnswerTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -324,10 +384,9 @@ namespace ClinicAssistant
         /// <summary>
         /// Удаление одного диагноза
         /// </summary>
-        private void DeleteDiagnosis_Click(object sender, RoutedEventArgs e)
+        private async void DeleteDiagnosis_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn == null) return;
+            if (!(sender is Button btn)) return;
 
             if (!int.TryParse(btn.Tag.ToString(), out int diagnosisID))
             {
@@ -335,25 +394,26 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Подтверждение
             if (MessageBox.Show("Вы уверены, что хотите удалить этот диагноз и все связанные записи?",
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
-                    DeleteDiagnosisByID(diagnosisID, conn, transaction);
+                    await DeleteDiagnosisByIDAsync(diagnosisID, conn, transaction);
 
                     transaction.Commit();
                     MessageBox.Show("Диагноз и связанные записи успешно удалены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadDiagnoses(SearchDiagnosisTextBox.Text.Trim());
+                    await LoadDiagnosesAsync(SearchDiagnosisTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -366,10 +426,9 @@ namespace ClinicAssistant
         /// <summary>
         /// Удаление одного врача
         /// </summary>
-        private void DeleteDoctor_Click(object sender, RoutedEventArgs e)
+        private async void DeleteDoctor_Click(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn == null) return;
+            if (!(sender is Button btn)) return;
 
             if (!int.TryParse(btn.Tag.ToString(), out int doctorID))
             {
@@ -377,25 +436,26 @@ namespace ClinicAssistant
                 return;
             }
 
-            // Подтверждение
             if (MessageBox.Show("Вы уверены, что хотите удалить этого врача и все связанные записи?",
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
-                    DeleteDoctorByID(doctorID, conn, transaction);
+                    await DeleteDoctorByIDAsync(doctorID, conn, transaction);
 
                     transaction.Commit();
                     MessageBox.Show("Врач и связанные записи успешно удалены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                    LoadDoctors(SearchDoctorTextBox.Text.Trim());
+                    await LoadDoctorsAsync(SearchDoctorTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -407,12 +467,9 @@ namespace ClinicAssistant
 
         #endregion
 
-        #region Обработчики событий массового удаления
+        #region Обработчики событий массового удаления (асинхронные)
 
-        /// <summary>
-        /// Массовое удаление симптомов
-        /// </summary>
-        private void DeleteSelectedSymptoms_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSelectedSymptoms_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = SymptomsDataGrid.SelectedItems;
             if (selectedItems == null || selectedItems.Count == 0)
@@ -428,9 +485,10 @@ namespace ClinicAssistant
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
-            // Собираем ID всех выбранных симптомов
             List<int> symptomIdsToDelete = new List<int>();
             foreach (var item in selectedItems)
             {
@@ -454,14 +512,14 @@ namespace ClinicAssistant
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
                     foreach (int id in symptomIdsToDelete)
                     {
-                        DeleteSymptomByID(id, conn, transaction);
+                        await DeleteSymptomByIDAsync(id, conn, transaction);
                     }
 
                     transaction.Commit();
@@ -470,7 +528,7 @@ namespace ClinicAssistant
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    LoadSymptoms(SearchSymptomTextBox.Text.Trim());
+                    await LoadSymptomsAsync(SearchSymptomTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -483,10 +541,7 @@ namespace ClinicAssistant
             }
         }
 
-        /// <summary>
-        /// Массовое удаление наводящих вопросов
-        /// </summary>
-        private void DeleteSelectedQuestions_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSelectedQuestions_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = QuestionsDataGrid.SelectedItems;
             if (selectedItems == null || selectedItems.Count == 0)
@@ -502,7 +557,9 @@ namespace ClinicAssistant
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             List<int> questionIdsToDelete = new List<int>();
             foreach (var item in selectedItems)
@@ -527,14 +584,14 @@ namespace ClinicAssistant
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
                     foreach (int qId in questionIdsToDelete)
                     {
-                        DeleteQuestionByID(qId, conn, transaction);
+                        await DeleteQuestionByIDAsync(qId, conn, transaction);
                     }
 
                     transaction.Commit();
@@ -543,7 +600,7 @@ namespace ClinicAssistant
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    LoadFollowUpQuestions(SearchQuestionTextBox.Text.Trim());
+                    await LoadFollowUpQuestionsAsync(SearchQuestionTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -556,10 +613,7 @@ namespace ClinicAssistant
             }
         }
 
-        /// <summary>
-        /// Массовое удаление ответов
-        /// </summary>
-        private void DeleteSelectedAnswers_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSelectedAnswers_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = AnswersDataGrid.SelectedItems;
             if (selectedItems == null || selectedItems.Count == 0)
@@ -575,7 +629,9 @@ namespace ClinicAssistant
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             List<int> answerIdsToDelete = new List<int>();
             foreach (var item in selectedItems)
@@ -600,14 +656,14 @@ namespace ClinicAssistant
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
                     foreach (int aId in answerIdsToDelete)
                     {
-                        DeleteAnswerByID(aId, conn, transaction);
+                        await DeleteAnswerByIDAsync(aId, conn, transaction);
                     }
 
                     transaction.Commit();
@@ -616,7 +672,7 @@ namespace ClinicAssistant
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    LoadAnswers(SearchAnswerTextBox.Text.Trim());
+                    await LoadAnswersAsync(SearchAnswerTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -629,10 +685,7 @@ namespace ClinicAssistant
             }
         }
 
-        /// <summary>
-        /// Массовое удаление диагнозов
-        /// </summary>
-        private void DeleteSelectedDiagnoses_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSelectedDiagnoses_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = DiagnosesDataGrid.SelectedItems;
             if (selectedItems == null || selectedItems.Count == 0)
@@ -648,7 +701,9 @@ namespace ClinicAssistant
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             List<int> diagIdsToDelete = new List<int>();
             foreach (var item in selectedItems)
@@ -673,14 +728,14 @@ namespace ClinicAssistant
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
                     foreach (int dId in diagIdsToDelete)
                     {
-                        DeleteDiagnosisByID(dId, conn, transaction);
+                        await DeleteDiagnosisByIDAsync(dId, conn, transaction);
                     }
 
                     transaction.Commit();
@@ -689,7 +744,7 @@ namespace ClinicAssistant
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    LoadDiagnoses(SearchDiagnosisTextBox.Text.Trim());
+                    await LoadDiagnosesAsync(SearchDiagnosisTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -702,10 +757,7 @@ namespace ClinicAssistant
             }
         }
 
-        /// <summary>
-        /// Массовое удаление врачей
-        /// </summary>
-        private void DeleteSelectedDoctors_Click(object sender, RoutedEventArgs e)
+        private async void DeleteSelectedDoctors_Click(object sender, RoutedEventArgs e)
         {
             var selectedItems = DoctorsDataGrid.SelectedItems;
             if (selectedItems == null || selectedItems.Count == 0)
@@ -721,7 +773,9 @@ namespace ClinicAssistant
                                 "Подтверждение",
                                 MessageBoxButton.YesNo,
                                 MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             List<int> doctorIdsToDelete = new List<int>();
             foreach (var item in selectedItems)
@@ -746,14 +800,14 @@ namespace ClinicAssistant
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 SqlTransaction transaction = conn.BeginTransaction();
 
                 try
                 {
                     foreach (int docId in doctorIdsToDelete)
                     {
-                        DeleteDoctorByID(docId, conn, transaction);
+                        await DeleteDoctorByIDAsync(docId, conn, transaction);
                     }
 
                     transaction.Commit();
@@ -762,7 +816,7 @@ namespace ClinicAssistant
                                     MessageBoxButton.OK,
                                     MessageBoxImage.Information);
 
-                    LoadDoctors(SearchDoctorTextBox.Text.Trim());
+                    await LoadDoctorsAsync(SearchDoctorTextBox.Text.Trim());
                 }
                 catch (Exception ex)
                 {
@@ -777,19 +831,16 @@ namespace ClinicAssistant
 
         #endregion
 
-        #region Вспомогательные методы удаления
+        #region Вспомогательные методы удаления (асинхронные)
 
-        /// <summary>
-        /// Удаление симптома и связанных с ним данных по ID
-        /// </summary>
-        private void DeleteSymptomByID(int symptomID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteSymptomByIDAsync(int symptomID, SqlConnection conn, SqlTransaction transaction)
         {
             // Удаление из PatientSymptoms
             string deletePatientSymptoms = "DELETE FROM PatientSymptoms WHERE SymptomID = @SymptomID";
             using (SqlCommand cmd = new SqlCommand(deletePatientSymptoms, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@SymptomID", symptomID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Получаем все связанные вопросы
@@ -798,15 +849,17 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(getQuestions, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@SymptomID", symptomID);
-                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                adapter.Fill(questionsTable);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    questionsTable.Load(reader);
+                }
             }
 
             // Для каждого вопроса удаляем ответы
             foreach (DataRow row in questionsTable.Rows)
             {
                 int questionID = Convert.ToInt32(row["QuestionID"]);
-                DeleteAnswersByQuestionID(questionID, conn, transaction);
+                await DeleteAnswersByQuestionIDAsync(questionID, conn, transaction);
             }
 
             // Удаляем из FollowUpQuestions
@@ -814,7 +867,7 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteFollowUpQuestions, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@SymptomID", symptomID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем сам симптом
@@ -822,14 +875,11 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteSymptom, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@SymptomID", symptomID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление вопроса и связанных ответов по QuestionID
-        /// </summary>
-        private void DeleteQuestionByID(int questionID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteQuestionByIDAsync(int questionID, SqlConnection conn, SqlTransaction transaction)
         {
             // Получаем все связанные Answers
             string getAnswers = "SELECT AnswerID FROM Answers WHERE QuestionID = @QuestionID";
@@ -837,15 +887,17 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(getAnswers, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@QuestionID", questionID);
-                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                adapter.Fill(answersTable);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    answersTable.Load(reader);
+                }
             }
 
             // Для каждого ответа удаляем связанные записи
             foreach (DataRow row in answersTable.Rows)
             {
                 int answerID = Convert.ToInt32(row["AnswerID"]);
-                DeleteAnswerRelatedRecords(answerID, conn, transaction);
+                await DeleteAnswerRelatedRecordsAsync(answerID, conn, transaction);
             }
 
             // Удаляем все ответы для данного вопроса
@@ -853,7 +905,7 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteAnswers, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@QuestionID", questionID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем сам вопрос
@@ -861,38 +913,32 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteQuestion, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@QuestionID", questionID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление ответа и связанных с ним записей
-        /// </summary>
-        private void DeleteAnswerByID(int answerID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteAnswerByIDAsync(int answerID, SqlConnection conn, SqlTransaction transaction)
         {
-            // Сначала удаляем связанные записи из AnswerDiagnoses и PatientAnswers
-            DeleteAnswerRelatedRecords(answerID, conn, transaction);
+            // Сначала удаляем связанные записи
+            await DeleteAnswerRelatedRecordsAsync(answerID, conn, transaction);
 
             // Удаляем сам ответ
             string deleteAnswer = "DELETE FROM Answers WHERE AnswerID = @AnswerID";
             using (SqlCommand cmd = new SqlCommand(deleteAnswer, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@AnswerID", answerID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление диагноза и связанных с ним записей
-        /// </summary>
-        private void DeleteDiagnosisByID(int diagnosisID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteDiagnosisByIDAsync(int diagnosisID, SqlConnection conn, SqlTransaction transaction)
         {
             // Удаляем из AnswerDiagnoses
             string deleteAnswerDiagnoses = "DELETE FROM AnswerDiagnoses WHERE DiagnosisID = @DiagnosisID";
             using (SqlCommand cmd = new SqlCommand(deleteAnswerDiagnoses, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DiagnosisID", diagnosisID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем из DoctorDiagnoses
@@ -900,7 +946,7 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteDoctorDiagnoses, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DiagnosisID", diagnosisID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем из PatientDiagnoses
@@ -908,7 +954,7 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deletePatientDiagnoses, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DiagnosisID", diagnosisID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем сам диагноз
@@ -916,21 +962,18 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteDiagnosis, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DiagnosisID", diagnosisID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление врача и связанных с ним записей
-        /// </summary>
-        private void DeleteDoctorByID(int doctorID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteDoctorByIDAsync(int doctorID, SqlConnection conn, SqlTransaction transaction)
         {
             // Удаление из DoctorDiagnoses
             string deleteDoctorDiagnoses = "DELETE FROM DoctorDiagnoses WHERE DoctorID = @DoctorID";
             using (SqlCommand cmd = new SqlCommand(deleteDoctorDiagnoses, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DoctorID", doctorID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаление самого врача
@@ -938,21 +981,18 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteDoctor, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@DoctorID", doctorID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление связанных записей из AnswerDiagnoses и PatientAnswers
-        /// </summary>
-        private void DeleteAnswerRelatedRecords(int answerID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteAnswerRelatedRecordsAsync(int answerID, SqlConnection conn, SqlTransaction transaction)
         {
             // Удаляем из AnswerDiagnoses
             string deleteAnswerDiagnoses = "DELETE FROM AnswerDiagnoses WHERE AnswerID = @AnswerID";
             using (SqlCommand cmd = new SqlCommand(deleteAnswerDiagnoses, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@AnswerID", answerID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
 
             // Удаляем из PatientAnswers
@@ -960,14 +1000,11 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deletePatientAnswers, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@AnswerID", answerID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        /// <summary>
-        /// Удаление ответов по QuestionID (используется при удалении симптома и его связанных вопросов)
-        /// </summary>
-        private void DeleteAnswersByQuestionID(int questionID, SqlConnection conn, SqlTransaction transaction)
+        private async Task DeleteAnswersByQuestionIDAsync(int questionID, SqlConnection conn, SqlTransaction transaction)
         {
             // Получаем все ответы по данному QuestionID
             string getAnswers = "SELECT AnswerID FROM Answers WHERE QuestionID = @QuestionID";
@@ -975,15 +1012,17 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(getAnswers, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@QuestionID", questionID);
-                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                adapter.Fill(answersTable);
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    answersTable.Load(reader);
+                }
             }
 
             // Для каждого ответа удаляем связанные записи
             foreach (DataRow row in answersTable.Rows)
             {
                 int answerID = Convert.ToInt32(row["AnswerID"]);
-                DeleteAnswerRelatedRecords(answerID, conn, transaction);
+                await DeleteAnswerRelatedRecordsAsync(answerID, conn, transaction);
             }
 
             // Удаляем сами ответы
@@ -991,7 +1030,7 @@ namespace ClinicAssistant
             using (SqlCommand cmd = new SqlCommand(deleteAnswers, conn, transaction))
             {
                 cmd.Parameters.AddWithValue("@QuestionID", questionID);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
             }
         }
 
