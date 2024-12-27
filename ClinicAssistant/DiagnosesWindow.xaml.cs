@@ -17,9 +17,9 @@ namespace ClinicAssistant
         private readonly int patientId;
         private readonly DatabaseFacade dbFacade = new DatabaseFacade();
 
-        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki8;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        //private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki8;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
-        //private readonly string connectionString = "data source = 192.168.147.54; initial catalog = PomoshnikPolicliniki; persist security info=True;user id =is; password=1;MultipleActiveResultSets=True;App=EntityFramework";
+        private readonly string connectionString = "data source = 192.168.147.54; initial catalog = PomoshnikPolicliniki8; persist security info=True;user id =is; password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
         public ObservableCollection<DiagnosisData> Diagnoses { get; set; } = new ObservableCollection<DiagnosisData>();
 
@@ -85,8 +85,8 @@ namespace ClinicAssistant
         {
             try
             {
-                // Словарь для подсчёта количества диагнозов, которые лечит каждый врач
-                var doctorDiagnosisCount = new Dictionary<int, (string FullName, string OfficeNumber, string Specialty, int Count)>();
+                // Dictionary to store doctor specialties and their cumulative percentage
+                var specialtyPercentage = new Dictionary<string, double>();
 
                 foreach (var diagnosisId in topDiagnosisIds)
                 {
@@ -94,59 +94,63 @@ namespace ClinicAssistant
 
                     foreach (var doctor in doctors)
                     {
-                        if (doctorDiagnosisCount.ContainsKey(doctor.DoctorID))
+                        if (specialtyPercentage.ContainsKey(doctor.Specialty))
                         {
-                            doctorDiagnosisCount[doctor.DoctorID] = (
-                                doctor.FullName,
-                                doctor.OfficeNumber,
-                                doctor.Specialty,
-                                doctorDiagnosisCount[doctor.DoctorID].Count + 1
-                            );
+                            specialtyPercentage[doctor.Specialty] += 1.0 / topDiagnosisIds.Count * 100;
                         }
                         else
                         {
-                            doctorDiagnosisCount[doctor.DoctorID] = (
-                                doctor.FullName,
-                                doctor.OfficeNumber,
-                                doctor.Specialty,
-                                1
-                            );
+                            specialtyPercentage[doctor.Specialty] = 1.0 / topDiagnosisIds.Count * 100;
                         }
                     }
                 }
 
-                // Определяем врача, который лечит больше всего "победивших" диагнозов
-                var bestDoctor = doctorDiagnosisCount
-                    .OrderByDescending(d => d.Value.Count)
-                    .FirstOrDefault();
-
-                if (doctorDiagnosisCount.Count == 0)
+                if (!specialtyPercentage.Any())
                 {
                     DoctorInfoTextBlock.Text = "Врачи не назначены для данных диагнозов.";
+                    return;
                 }
-                else if (doctorDiagnosisCount.Values.All(d => d.Count == 1))
+
+                // Determine the leader based on percentage
+                var maxPercentage = specialtyPercentage.Values.Max();
+                var topSpecialties = specialtyPercentage
+                    .Where(s => Math.Abs(s.Value - maxPercentage) < 0.01) // Account for floating-point precision
+                    .Select(s => s.Key)
+                    .ToList();
+
+                string selectedSpecialty;
+
+                if (topSpecialties.Count == 1)
                 {
-                    // Если все врачи лечат только по одному диагнозу, выбираем врача с Specialty = "Терапевт"
-                    var fallbackDoctor = await dbFacade.GetDoctorBySpecialtyAsync("Терапевт");
-                    if (fallbackDoctor.HasValue)
-                    {
-                        DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.Value.FullName}, Кабинет: {fallbackDoctor.Value.OfficeNumber}";
-                    }
-                    else
-                    {
-                        // Если терапевт не найден, выбираем первого попавшегося врача
-                        DoctorInfoTextBlock.Text = $"ФИО: {bestDoctor.Value.FullName}, Кабинет: {bestDoctor.Value.OfficeNumber}";
-                    }
+                    // Clear leader
+                    selectedSpecialty = topSpecialties.First();
+                }
+                else if (topSpecialties.Contains("Терапевт"))
+                {
+                    // If there's a tie, prioritize "Терапевт"
+                    selectedSpecialty = "Терапевт";
                 }
                 else
                 {
-                    // Выводим врача, который лечит больше всего диагнозов
-                    DoctorInfoTextBlock.Text = $"ФИО: {bestDoctor.Value.FullName}, Кабинет: {bestDoctor.Value.OfficeNumber}";
+                    // Fallback to the first specialty in the list
+                    selectedSpecialty = topSpecialties.First();
+                }
+
+                // Fetch doctor details for the selected specialty
+                var fallbackDoctor = await dbFacade.GetDoctorBySpecialtyAsync(selectedSpecialty);
+
+                if (fallbackDoctor.HasValue)
+                {
+                    DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.Value.FullName}, Кабинет: {fallbackDoctor.Value.OfficeNumber}";
+                }
+                else
+                {
+                    DoctorInfoTextBlock.Text = "Не удалось найти врача по выбранной специальности.";
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при загрузке информации о враче: " + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка при загрузке информации о враче: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
