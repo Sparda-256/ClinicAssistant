@@ -12,12 +12,17 @@ namespace ClinicAssistant
     using System;
     using System.Collections.Generic;
     
-    public partial class Answer
+    public partial class ProcedureAppointments
     {
-        public int AnswerID { get; set; }
-        public Nullable<int> QuestionID { get; set; }
-        public string Answer1 { get; set; }
+        public int AppointmentID { get; set; }
+        public Nullable<int> PatientID { get; set; }
+        public Nullable<int> DoctorID { get; set; }
+        public Nullable<int> ProcedureID { get; set; }
+        public Nullable<System.DateTime> AppointmentDateTime { get; set; }
+        public string Status { get; set; }
     
-        public virtual FollowUpQuestion FollowUpQuestion { get; set; }
+        public virtual Doctors Doctors { get; set; }
+        public virtual Patients Patients { get; set; }
+        public virtual Procedures Procedures { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace ClinicAssistant
     /// </summary>
     public partial class DeleteWindow : Window
     {
-        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki9;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki2;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
         //private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki8;persist security info=True;user id=is;password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
         public DeleteWindow()

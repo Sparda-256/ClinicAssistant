@@ -1,21 +1,40 @@
-CREATE DATABASE PomoshnikPolicliniki
+CREATE DATABASE PomoshnikPolicliniki2
 
-USE PomoshnikPolicliniki
+USE PomoshnikPolicliniki2
 
--- Создание таблицы для пациентов
-CREATE TABLE Patients (
-    PatientID INT IDENTITY PRIMARY KEY,
+-- Создание таблицы для главврачей
+CREATE TABLE ChiefDoctors (
+    ChiefDoctorID INT IDENTITY PRIMARY KEY,
     FullName NVARCHAR(100),
-    Age INT,
+    Password NVARCHAR(100)
+);
+
+-- Создание таблицы для новых пациентов
+CREATE TABLE NewPatients (
+    NewPatientID INT IDENTITY PRIMARY KEY,
+    FullName NVARCHAR(100),
+    DateOfBirth DATE,
     Gender NVARCHAR(10)
 );
 
--- Создание таблицы для врачей
+-- Создание таблицы для пациентов (с изменениями)
+CREATE TABLE Patients (
+    PatientID INT IDENTITY PRIMARY KEY,
+    FullName NVARCHAR(100),
+    DateOfBirth DATE,
+    Gender NVARCHAR(10),
+    RecordDate DATETIME,  -- Дата записи пациента
+    DischargeDate DATETIME -- Дата выписки пациента
+);
+
+-- Создание таблицы для врачей (с изменениями)
 CREATE TABLE Doctors (
     DoctorID INT IDENTITY PRIMARY KEY,
     FullName NVARCHAR(100),
     Specialty NVARCHAR(100),
-    OfficeNumber NVARCHAR(10)
+    OfficeNumber NVARCHAR(10),
+    Password NVARCHAR(100),  -- Пароль для врачей
+    WorkExperience INT  -- Стаж работы
 );
 
 -- Создание таблицы для симптомов
@@ -51,7 +70,7 @@ CREATE TABLE AnswerDiagnoses (
     AnswerID INT,
     DiagnosisID INT,
     FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID),
-    FOREIGN KEY (DiagnosisID) REFERENCES Diagnoses(DiagnosisID),
+    FOREIGN KEY (DiagnosisID) REFERENCES Diagnoses(DiagnosisID)
 );
 
 -- Связь между врачами и диагнозами
@@ -59,56 +78,95 @@ CREATE TABLE DoctorDiagnoses (
     DoctorID INT,
     DiagnosisID INT,
     FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID),
-    FOREIGN KEY (DiagnosisID) REFERENCES Diagnoses(DiagnosisID),
-);
-
--- Таблица для хранения симптомов пациентов
-CREATE TABLE PatientSymptoms (
-    PatientID INT,
-    SymptomID INT,
-    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
-    FOREIGN KEY (SymptomID) REFERENCES Symptoms(SymptomID),
-);
-
--- Таблица для хранения ответов пациентов
-CREATE TABLE PatientAnswers (
-    PatientID INT,
-    AnswerID INT,
-    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
-    FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID),
-);
-
--- Таблица для хранения диагнозов пациентов
-CREATE TABLE PatientDiagnoses(
-    PatientID INT,
-    DiagnosisID INT,
- Percentageofdiagnosis INT,
-    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
     FOREIGN KEY (DiagnosisID) REFERENCES Diagnoses(DiagnosisID)
 );
 
-INSERT INTO Doctors (FullName, Specialty, OfficeNumber)
+-- Таблица для хранения симптомов пациентов
+CREATE TABLE NewPatientSymptoms (
+    NewPatientID INT,
+    SymptomID INT,
+    FOREIGN KEY (NewPatientID) REFERENCES NewPatients(NewPatientID),
+    FOREIGN KEY (SymptomID) REFERENCES Symptoms(SymptomID)
+);
+
+-- Таблица для хранения ответов пациентов
+CREATE TABLE NewPatientAnswers (
+    NewPatientID INT,
+    AnswerID INT,
+    FOREIGN KEY (NewPatientID) REFERENCES NewPatients(NewPatientID),
+    FOREIGN KEY (AnswerID) REFERENCES Answers(AnswerID)
+);
+
+-- Таблица для хранения диагнозов пациентов
+CREATE TABLE NewPatientDiagnoses (
+    NewPatientID INT,
+    DiagnosisID INT,
+    PercentageOfDiagnosis INT,  -- Процент вероятности диагноза
+    FOREIGN KEY (NewPatientID) REFERENCES NewPatients(NewPatientID),
+    FOREIGN KEY (DiagnosisID) REFERENCES Diagnoses(DiagnosisID)
+);
+
+-- Создание таблицы для процедур
+CREATE TABLE Procedures (
+    ProcedureID INT IDENTITY PRIMARY KEY,
+    DoctorID INT,  -- Внешний ключ на таблицу врачей
+    ProcedureName NVARCHAR(100),  -- Наименование процедуры
+    Duration INT,  -- Длительность процедуры (в минутах)
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID)
+);
+
+-- Создание таблицы для назначений процедур
+CREATE TABLE ProcedureAppointments (
+    AppointmentID INT IDENTITY PRIMARY KEY,
+    PatientID INT,  -- Внешний ключ на таблицу пациентов
+    DoctorID INT,   -- Внешний ключ на таблицу врачей
+    ProcedureID INT, -- Внешний ключ на таблицу процедур
+    AppointmentDateTime DATETIME,  -- Дата и время проведения процедуры
+    Status NVARCHAR(50), -- Статус процедуры
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID),
+    FOREIGN KEY (ProcedureID) REFERENCES Procedures(ProcedureID)
+);
+
+-- Создание таблицы для связи пациентов и врачей (многие ко многим)
+CREATE TABLE PatientDoctorAssignments (
+    PatientID INT,
+    DoctorID INT,
+    PRIMARY KEY (PatientID, DoctorID),
+    FOREIGN KEY (PatientID) REFERENCES Patients(PatientID),
+    FOREIGN KEY (DoctorID) REFERENCES Doctors(DoctorID)
+);
+
+INSERT INTO ChiefDoctors(FullName, Password)
 VALUES
-('Иванов Иван Иванович', 'Терапевт', '101'),
-('Петров Петр Петрович', 'Хирург', '102'),
-('Сидорова Анна Сергеевна', 'Педиатр', '103'),
-('Кузнецов Михаил Андреевич', 'Кардиолог', '104'),
-('Морозова Елена Викторовна', 'Невролог', '105'),
-('Смирнов Дмитрий Алексеевич', 'Офтальмолог', '106'),
-('Алексеев Александр Иванович', 'ЛОР', '107'),
-('Кириллова Татьяна Евгеньевна', 'Эндокринолог', '108'),
-('Орлов Сергей Николаевич', 'Дерматолог', '109'),
-('Романова Мария Васильевна', 'Гастроэнтеролог', '110'),
-('Григорьев Николай Павлович', 'Уролог', '111'),
-('Зайцева Ольга Владимировна', 'Ревматолог', '112'),
-('Тарасов Андрей Петрович', 'Аллерголог', '113'),
-('Ефимова Екатерина Сергеевна', 'Иммунолог', '114'),
-('Соловьев Максим Алексеевич', 'Инфекционист', '115'),
-('Федоров Василий Николаевич', 'Фтизиатр', '116'),
-('Лебедев Артем Михайлович', 'Психиатр', '117'),
-('Семенова Надежда Викторовна', 'Хирург', '118'),
-('Калинина Алла Георгиевна', 'Невролог', '119'),
-('Никитин Алексей Дмитриевич', 'Гематолог', '120');
+('admin', 'admin'),
+('Admin', 'Admin'),
+('Админ', 'Админ'),
+('админ', 'админ');
+
+INSERT INTO Doctors (FullName, Specialty, OfficeNumber, Password, WorkExperience)
+VALUES
+('Иванов Иван Иванович', 'Терапевт', '101', 'password123', 10),
+('Петров Петр Петрович', 'Хирург', '102', 'password123', 12),
+('Сидорова Анна Сергеевна', 'Педиатр', '103', 'password123', 8),
+('Кузнецов Михаил Андреевич', 'Кардиолог', '104', 'password123', 15),
+('Морозова Елена Викторовна', 'Невролог', '105', 'password123', 9),
+('Смирнов Дмитрий Алексеевич', 'Офтальмолог', '106', 'password123', 7),
+('Алексеев Александр Иванович', 'ЛОР', '107', 'password123', 11),
+('Кириллова Татьяна Евгеньевна', 'Эндокринолог', '108', 'password123', 14),
+('Орлов Сергей Николаевич', 'Дерматолог', '109', 'password123', 13),
+('Романова Мария Васильевна', 'Гастроэнтеролог', '110', 'password123', 16),
+('Григорьев Николай Павлович', 'Уролог', '111', 'password123', 10),
+('Зайцева Ольга Владимировна', 'Ревматолог', '112', 'password123', 5),
+('Тарасов Андрей Петрович', 'Аллерголог', '113', 'password123', 9),
+('Ефимова Екатерина Сергеевна', 'Иммунолог', '114', 'password123', 6),
+('Соловьев Максим Алексеевич', 'Инфекционист', '115', 'password123', 18),
+('Федоров Василий Николаевич', 'Фтизиатр', '116', 'password123', 17),
+('Лебедев Артем Михайлович', 'Психиатр', '117', 'password123', 20),
+('Семенова Надежда Викторовна', 'Хирург', '118', 'password123', 22),
+('Калинина Алла Георгиевна', 'Невролог', '119', 'password123', 13),
+('Никитин Алексей Дмитриевич', 'Гематолог', '120', 'password123', 8);
+
 
 INSERT INTO Symptoms (SymptomName)
 VALUES

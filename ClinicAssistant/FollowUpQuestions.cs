@@ -12,9 +12,20 @@ namespace ClinicAssistant
     using System;
     using System.Collections.Generic;
     
-    public partial class Diagnosis
+    public partial class FollowUpQuestions
     {
-        public int DiagnosisID { get; set; }
-        public string DiagnosisName { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public FollowUpQuestions()
+        {
+            this.Answers = new HashSet<Answers>();
+        }
+    
+        public int QuestionID { get; set; }
+        public Nullable<int> SymptomID { get; set; }
+        public string Question { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Answers> Answers { get; set; }
+        public virtual Symptoms Symptoms { get; set; }
     }
 }

@@ -11,18 +11,18 @@ namespace ClinicAssistant
     {
         //private readonly string connectionString = "data source=192.168.147.54;initial catalog=PomoshnikPolicliniki8;persist security info=True;user id=is;password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
-        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki9;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki2;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
-        public int AddPatient(string fullName, int age, string gender)
+        public int AddNewPatient(string fullName, DateTime dateOfBirth, string gender)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Patients (FullName, Age, Gender) OUTPUT INSERTED.PatientID VALUES (@FullName, @Age, @Gender)";
+                string query = "INSERT INTO NewPatients (FullName, DateOfBirth, Gender) OUTPUT INSERTED.NewPatientID VALUES (@FullName, @DateOfBirth, @Gender)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@FullName", fullName);
-                    command.Parameters.AddWithValue("@Age", age);
+                    command.Parameters.AddWithValue("@DateOfBirth", dateOfBirth);
                     command.Parameters.AddWithValue("@Gender", gender);
                     return (int)command.ExecuteScalar();
                 }
@@ -63,7 +63,7 @@ namespace ClinicAssistant
             return symptoms;
         }
 
-        public void AddPatientSymptoms(int patientId, IEnumerable<int> symptomIds)
+        public void AddNewPatientSymptoms(int newPatientId, IEnumerable<int> symptomIds)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -74,10 +74,10 @@ namespace ClinicAssistant
                     {
                         foreach (var symptomId in symptomIds)
                         {
-                            string query = "INSERT INTO PatientSymptoms (PatientID, SymptomID) VALUES (@PatientID, @SymptomID)";
+                            string query = "INSERT INTO NewPatientSymptoms (NewPatientID, SymptomID) VALUES (@NewPatientID, @SymptomID)";
                             using (SqlCommand command = new SqlCommand(query, connection, transaction))
                             {
-                                command.Parameters.AddWithValue("@PatientID", patientId);
+                                command.Parameters.AddWithValue("@NewPatientID", newPatientId);
                                 command.Parameters.AddWithValue("@SymptomID", symptomId);
                                 command.ExecuteNonQuery();
                             }
@@ -94,17 +94,17 @@ namespace ClinicAssistant
             }
         }
 
-        public List<int> GetPatientSymptoms(int patientId)
+        public List<int> GetNewPatientSymptoms(int newPatientId)
         {
             var symptomIds = new List<int>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = "SELECT SymptomID FROM PatientSymptoms WHERE PatientID = @PatientID";
+                string query = "SELECT SymptomID FROM NewPatientSymptoms WHERE NewPatientID = @NewPatientID";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PatientID", patientId);
+                    command.Parameters.AddWithValue("@NewPatientID", newPatientId);
 
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -180,7 +180,7 @@ namespace ClinicAssistant
             return answers;
         }
 
-        public void SavePatientAnswers(int patientId, IEnumerable<int> answerIds)
+        public void SaveNewPatientAnswers(int newPatientId, IEnumerable<int> answerIds)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -189,11 +189,11 @@ namespace ClinicAssistant
                 {
                     try
                     {
-                        string query = "INSERT INTO PatientAnswers (PatientID, AnswerID) VALUES (@PatientID, @AnswerID)";
+                        string query = "INSERT INTO NewPatientAnswers (NewPatientID, AnswerID) VALUES (@NewPatientID, @AnswerID)";
                         using (SqlCommand command = new SqlCommand(query, connection, transaction))
                         {
-                            command.Parameters.Add("@PatientID", System.Data.SqlDbType.Int).Value = patientId;
-                            command.Parameters.Add("@AnswerID", System.Data.SqlDbType.Int);
+                            command.Parameters.Add("@NewPatientID", SqlDbType.Int).Value = newPatientId;
+                            command.Parameters.Add("@AnswerID", SqlDbType.Int);
 
                             foreach (var answerId in answerIds)
                             {
@@ -212,7 +212,7 @@ namespace ClinicAssistant
                 }
             }
         }
-        public async Task<List<(int DiagnosisID, string DiagnosisName, int Matches)>> GetDiagnosesAsync(int patientId)
+        public async Task<List<(int DiagnosisID, string DiagnosisName, int Matches)>> GetDiagnosesAsync(int newPatientId)
         {
             var diagnoses = new List<(int DiagnosisID, string DiagnosisName, int Matches)>();
 
@@ -222,16 +222,16 @@ namespace ClinicAssistant
 
                 string query = @"
                 SELECT d.DiagnosisID, d.DiagnosisName, COUNT(pa.AnswerID) AS AnswerMatches
-                FROM PatientAnswers pa
+                FROM NewPatientAnswers pa
                 JOIN AnswerDiagnoses ad ON pa.AnswerID = ad.AnswerID
                 JOIN Diagnoses d ON ad.DiagnosisID = d.DiagnosisID
-                WHERE pa.PatientID = @PatientID
+                WHERE pa.NewPatientID = @NewPatientID
                 GROUP BY d.DiagnosisID, d.DiagnosisName
                 ORDER BY AnswerMatches DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PatientID", patientId);
+                    command.Parameters.AddWithValue("@NewPatientID", newPatientId);
 
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
@@ -249,35 +249,35 @@ namespace ClinicAssistant
 
             return diagnoses;
         }
-        public async Task ClearExistingDiagnosesAsync(int patientId)
+        public async Task ClearExistingDiagnosesAsync(int newPatientId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                string query = "DELETE FROM PatientDiagnoses WHERE PatientID = @PatientID";
+                string query = "DELETE FROM NewPatientDiagnoses WHERE NewPatientID = @NewPatientID";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PatientID", patientId);
+                    command.Parameters.AddWithValue("@NewPatientID", newPatientId);
                     await command.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        public async Task SaveDiagnosisAsync(int patientId, int diagnosisId, int percentage)
+        public async Task SaveDiagnosisAsync(int newPatientId, int diagnosisId, int percentage)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
                 string query = @"
-                INSERT INTO PatientDiagnoses (PatientID, DiagnosisID, Percentageofdiagnosis)
-                VALUES (@PatientID, @DiagnosisID, @Percentageofdiagnosis)";
+                INSERT INTO NewPatientDiagnoses (NewPatientID, DiagnosisID, PercentageOfDiagnosis)
+                VALUES (@NewPatientID, @DiagnosisID, @PercentageOfDiagnosis)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PatientID", patientId);
+                    command.Parameters.AddWithValue("@NewPatientID", newPatientId);
                     command.Parameters.AddWithValue("@DiagnosisID", diagnosisId);
-                    command.Parameters.AddWithValue("@Percentageofdiagnosis", percentage);
+                    command.Parameters.AddWithValue("@PercentageOfDiagnosis", percentage);
 
                     await command.ExecuteNonQueryAsync();
                 }

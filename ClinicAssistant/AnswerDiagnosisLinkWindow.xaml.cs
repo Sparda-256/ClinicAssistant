@@ -11,7 +11,7 @@ namespace ClinicAssistant
     {
         //private string connectionString = "data source = 192.168.147.54; initial catalog = PomoshnikPolicliniki8; persist security info=True;user id =is; password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
-        private string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki9;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki2;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
         private List<dynamic> answers = new List<dynamic>();
         private List<dynamic> diagnoses = new List<dynamic>();
 

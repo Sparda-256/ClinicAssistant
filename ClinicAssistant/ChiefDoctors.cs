@@ -12,11 +12,10 @@ namespace ClinicAssistant
     using System;
     using System.Collections.Generic;
     
-    public partial class Doctor
+    public partial class ChiefDoctors
     {
-        public int DoctorID { get; set; }
+        public int ChiefDoctorID { get; set; }
         public string FullName { get; set; }
-        public string Specialty { get; set; }
-        public string OfficeNumber { get; set; }
+        public string Password { get; set; }
     }
 }

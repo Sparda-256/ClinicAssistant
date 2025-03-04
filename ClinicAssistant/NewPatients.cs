@@ -12,11 +12,11 @@ namespace ClinicAssistant
     using System;
     using System.Collections.Generic;
     
-    public partial class Patient
+    public partial class NewPatients
     {
-        public int PatientID { get; set; }
+        public int NewPatientID { get; set; }
         public string FullName { get; set; }
-        public Nullable<int> Age { get; set; }
+        public Nullable<System.DateTime> DateOfBirth { get; set; }
         public string Gender { get; set; }
     }
 }

@@ -12,20 +12,25 @@ namespace ClinicAssistant
     using System;
     using System.Collections.Generic;
     
-    public partial class FollowUpQuestion
+    public partial class Patients
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public FollowUpQuestion()
+        public Patients()
         {
-            this.Answers = new HashSet<Answer>();
+            this.ProcedureAppointments = new HashSet<ProcedureAppointments>();
+            this.Doctors = new HashSet<Doctors>();
         }
     
-        public int QuestionID { get; set; }
-        public Nullable<int> SymptomID { get; set; }
-        public string Question { get; set; }
+        public int PatientID { get; set; }
+        public string FullName { get; set; }
+        public Nullable<System.DateTime> DateOfBirth { get; set; }
+        public string Gender { get; set; }
+        public Nullable<System.DateTime> RecordDate { get; set; }
+        public Nullable<System.DateTime> DischargeDate { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Answer> Answers { get; set; }
-        public virtual Symptom Symptom { get; set; }
+        public virtual ICollection<ProcedureAppointments> ProcedureAppointments { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Doctors> Doctors { get; set; }
     }
 }

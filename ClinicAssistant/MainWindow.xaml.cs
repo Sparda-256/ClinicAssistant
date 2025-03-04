@@ -16,16 +16,7 @@ namespace ClinicAssistant
         {
             string fullName = FullNameTextBox.Text.Trim();
 
-            if (!int.TryParse(AgeTextBox.Text, out int age))
-            {
-                MessageBox.Show("Пожалуйста, введите корректный возраст.");
-                return;
-            }
-            if (age < 18 || age > 100)
-            {
-                MessageBox.Show("Возраст может быть в диапазоне от 18 до 100 лет.");
-                return;
-            }
+            DateTime dateOfBirth;
 
             if (string.IsNullOrEmpty(fullName) || !fullName.Contains(" "))
             {
@@ -40,7 +31,7 @@ namespace ClinicAssistant
                 return;
             }
 
-            if (fullName == "Админ Админович Админов" && age == 33 && gender == "Женский")
+            if (fullName == "Админ Админович Админов" && gender == "Женский")
             {
                 AdminWindow adminWindow = new AdminWindow();
                 adminWindow.Show();
@@ -48,10 +39,16 @@ namespace ClinicAssistant
                 return;
             }
 
+            if (!DateTime.TryParse(DateOfBirthPicker.Text, out dateOfBirth))
+            {
+                MessageBox.Show("Пожалуйста, введите корректную дату рождения.");
+                return;
+            }
+
             try
             {
                 DatabaseFacade dbFacade = new DatabaseFacade();
-                int patientId = dbFacade.AddPatient(fullName, age, gender);
+                int patientId = dbFacade.AddNewPatient(fullName, dateOfBirth, gender); // Изменено на AddNewPatient
 
                 SymptomChooseWindow symptomWindow = new SymptomChooseWindow(patientId);
                 symptomWindow.Show();

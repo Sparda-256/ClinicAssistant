@@ -24,9 +24,9 @@
                 <TextBox x:Name="FullNameTextBox" Margin="0,5,0,15" Padding="8" 
                          BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
 
-                <TextBlock Text="Возраст:" FontSize="14" Foreground="#555555"/>
-                <TextBox x:Name="AgeTextBox" Margin="0,5,0,15" Padding="8" 
-                         BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
+                <TextBlock Text="Дата рождения:" FontSize="14" Foreground="#555555"/>
+                <DatePicker x:Name="DateOfBirthPicker" Margin="0,5,0,15" Padding="8" 
+            BorderBrush="#B0B0B0" BorderThickness="1" Background="White"/>
 
                 <TextBlock Text="Пол:" FontSize="14" Foreground="#555555"/>
                 <ComboBox x:Name="GenderComboBox" Margin="0,5,0,15" Padding="8" 

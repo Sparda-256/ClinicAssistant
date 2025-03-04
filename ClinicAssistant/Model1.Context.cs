@@ -13,10 +13,10 @@ namespace ClinicAssistant
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class PomoshnikPolicliniki4Entities : DbContext
+    public partial class PomoshnikPolicliniki2Entities : DbContext
     {
-        public PomoshnikPolicliniki4Entities()
-            : base("name=PomoshnikPolicliniki4Entities")
+        public PomoshnikPolicliniki2Entities()
+            : base("name=PomoshnikPolicliniki2Entities")
         {
         }
     
@@ -25,11 +25,15 @@ namespace ClinicAssistant
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Answer> Answers { get; set; }
-        public virtual DbSet<Diagnosis> Diagnoses { get; set; }
-        public virtual DbSet<Doctor> Doctors { get; set; }
-        public virtual DbSet<FollowUpQuestion> FollowUpQuestions { get; set; }
-        public virtual DbSet<Patient> Patients { get; set; }
-        public virtual DbSet<Symptom> Symptoms { get; set; }
+        public virtual DbSet<Answers> Answers { get; set; }
+        public virtual DbSet<ChiefDoctors> ChiefDoctors { get; set; }
+        public virtual DbSet<Diagnoses> Diagnoses { get; set; }
+        public virtual DbSet<Doctors> Doctors { get; set; }
+        public virtual DbSet<FollowUpQuestions> FollowUpQuestions { get; set; }
+        public virtual DbSet<NewPatients> NewPatients { get; set; }
+        public virtual DbSet<Patients> Patients { get; set; }
+        public virtual DbSet<ProcedureAppointments> ProcedureAppointments { get; set; }
+        public virtual DbSet<Procedures> Procedures { get; set; }
+        public virtual DbSet<Symptoms> Symptoms { get; set; }
     }
 }

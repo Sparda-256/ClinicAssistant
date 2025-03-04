@@ -13,9 +13,9 @@ namespace ClinicAssistant
     /// </summary>
     public partial class SymptomChooseWindow : Window
     {
-        private readonly int patientId;
+        private readonly int newpatientId;
 
-        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki9;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
+        private readonly string connectionString = "data source=localhost;initial catalog=PomoshnikPolicliniki2;integrated security=True;encrypt=False;MultipleActiveResultSets=True;";
 
         //private readonly string connectionString = "data source = 192.168.147.54; initial catalog = PomoshnikPolicliniki8; persist security info=True;user id =is; password=1;MultipleActiveResultSets=True;App=EntityFramework";
 
@@ -25,10 +25,10 @@ namespace ClinicAssistant
         // Коллекция для хранения выбранных симптомов
         private HashSet<int> selectedSymptomIds = new HashSet<int>();
 
-        public SymptomChooseWindow(int patientId)
+        public SymptomChooseWindow(int newpatientId)
         {
             InitializeComponent();
-            this.patientId = patientId;
+            this.newpatientId = newpatientId;
             SymptomsListBox.ItemsSource = allSymptoms;
             LoadSymptoms();
         }
@@ -108,10 +108,10 @@ namespace ClinicAssistant
                         {
                             foreach (int symptomId in selectedSymptomIds)
                             {
-                                string query = "INSERT INTO PatientSymptoms (PatientID, SymptomID) VALUES (@PatientID, @SymptomID)";
+                                string query = "INSERT INTO NewPatientSymptoms (NewPatientID, SymptomID) VALUES (@NewPatientID, @SymptomID)";
                                 using (SqlCommand command = new SqlCommand(query, connection, transaction))
                                 {
-                                    command.Parameters.AddWithValue("@PatientID", patientId);
+                                    command.Parameters.AddWithValue("@NewPatientID", newpatientId);
                                     command.Parameters.AddWithValue("@SymptomID", symptomId);
                                     command.ExecuteNonQuery();
                                 }
@@ -134,7 +134,7 @@ namespace ClinicAssistant
                 }
             }
 
-            FollowUpQuestionsWindow followUpWindow = new FollowUpQuestionsWindow(patientId);
+            FollowUpQuestionsWindow followUpWindow = new FollowUpQuestionsWindow(newpatientId);
             followUpWindow.Show();
             this.Close();
         }
