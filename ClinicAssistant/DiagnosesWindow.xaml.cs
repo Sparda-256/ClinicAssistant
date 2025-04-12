@@ -142,11 +142,15 @@ namespace ClinicAssistant
                 if (fallbackDoctor.HasValue)
                 {
                     DoctorInfoTextBlock.Text = $"ФИО: {fallbackDoctor.Value.FullName}, Кабинет: {fallbackDoctor.Value.OfficeNumber}";
+                    await dbFacade.UpdatePredictedDoctorAsync(patientId, fallbackDoctor.Value.DoctorID);
                 }
+
                 else
                 {
                     DoctorInfoTextBlock.Text = "Не удалось найти врача по выбранной специальности.";
                 }
+
+
             }
             catch (Exception ex)
             {

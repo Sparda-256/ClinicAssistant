@@ -363,30 +363,44 @@ namespace ClinicAssistant
             }
         }
 
-        public async Task<(string FullName, string OfficeNumber)?> GetDoctorBySpecialtyAsync(string specialty)
+        public async Task<(int DoctorID, string FullName, string OfficeNumber)?> GetDoctorBySpecialtyAsync(string specialty)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
-                await connection.OpenAsync();
-
-                string query = "SELECT TOP 1 FullName, OfficeNumber FROM Doctors WHERE Specialty = @Specialty";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                await con.OpenAsync();
+                string query = "SELECT TOP 1 DoctorID, FullName, OfficeNumber FROM Doctors WHERE Specialty = @specialty";
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    command.Parameters.AddWithValue("@Specialty", specialty);
-
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    cmd.Parameters.AddWithValue("@specialty", specialty);
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())
                         {
-                            return (
-                                reader.GetString(0),
-                                reader.GetString(1)
-                            );
+                            int doctorId = reader.GetInt32(0);
+                            string fullName = reader.GetString(1);
+                            string officeNumber = reader.GetString(2);
+                            return (doctorId, fullName, officeNumber);
                         }
                     }
                 }
             }
             return null;
         }
+
+        public async Task UpdatePredictedDoctorAsync(int newPatientID, int predictedDoctorID)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                await con.OpenAsync();
+                string updateQuery = "UPDATE NewPatients SET PredictedDoctorID = @PredictedDoctorID WHERE NewPatientID = @NewPatientID";
+                using (SqlCommand cmd = new SqlCommand(updateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@PredictedDoctorID", predictedDoctorID);
+                    cmd.Parameters.AddWithValue("@NewPatientID", newPatientID);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
     }
 }
